@@ -12,7 +12,7 @@ namespace SQLInterpreter
 
         static void Main(string[] args)
         {
-            
+            ConsoleHandler handler = new ConsoleHandler();
 
         }
 
