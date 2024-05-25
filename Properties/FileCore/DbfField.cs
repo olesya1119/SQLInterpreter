@@ -4,25 +4,25 @@ using System.Text;
 namespace SQLInterpreter.Properties.FileCore
 {
     /// <summary>
-    /// Класс для описания поля таблицы
+    /// для описания поля таблицы
     /// </summary>
-    public class DbfField
+    public class DbfField:ICloneable
     {
         private short _fieldSize = 32;
         private ASCIIEncoding _encoding = new ASCIIEncoding(); 
-        private byte[] _name = new byte[11];
-        private byte _type;
-        private byte[] _offset = new byte[4];
-        private byte _size;
-        private byte _accuracy;
+        private byte[] _name = new byte[11]; //имя
+        private byte _type; // тип
+        private byte[] _offset = new byte[4]; //смещение относительтно начала записи
+        private byte _size; // размер поля
+        private byte _accuracy;// точность(количество знаков после запятой) , только для N типа
         private byte[] _reserved = new byte[14];
 
-        public DbfField(string name, char type, int offset, byte size, byte accuracy)
+        public DbfField(string name, char type, int offset, byte size, byte accuracy=0)
         {
             Name = name;
             Type = type;
             Offset = offset;
-            Size = _size;
+            Size = size;
             Accuracy = accuracy;
         }
 
@@ -38,7 +38,16 @@ namespace SQLInterpreter.Properties.FileCore
         }
         public String Name
         {
-            get => _encoding.GetString(_name,0,_name.Length);
+            get
+            {
+                int count = 0;
+                foreach (var i in _name)
+                {
+                    if(i!=0) count++;
+                    else break;
+                }
+                return _encoding.GetString(_name, 0, count);
+            }
             set
             {
                 if (value.Length > 11) throw new ArgumentException("name is too big");
@@ -94,6 +103,11 @@ namespace SQLInterpreter.Properties.FileCore
             v[17] = _accuracy;
             Buffer.BlockCopy(_reserved,0,v,18,_reserved.Length);
             return v;
+        }
+
+        public object Clone()
+        {
+            return new DbfField(Name, Type, Offset, Size, Accuracy);
         }
     }
 }
