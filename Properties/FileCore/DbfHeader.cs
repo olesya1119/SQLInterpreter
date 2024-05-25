@@ -3,28 +3,45 @@ using System.Collections.Generic;
 
 namespace SQLInterpreter.Properties.FileCore
 {
+    /// <summary>
+    /// для хранения заголовка
+    /// </summary>
     public class DbfHeader
     {
         private short _minHeader = 33;
         private short _fieldSize = 32;
-        private byte _hasMemo = Constants.NoMemo;
-        private byte[] _date = new byte[3];
-        private byte[] _count = new byte[4];
-        private byte[] _headerSize = new byte[2];
-        private byte[] _entrySize = new byte[2];
-        private byte[] _reserved = new byte[20];
-        private List<DbfField> _fields = new List<DbfField>();
-        private byte _terminator = Constants.Terminator;
-
-        public DbfHeader(bool hasNemo, DateTime date, int count, short headerSize, short entrySize)
+        private byte _hasMemo = Constants.NoMemo; //наличие мемо
+        private byte[] _date = new byte[3];//дата
+        private byte[] _count = new byte[4];//количество записей
+        private byte[] _headerSize = new byte[2];//размер заголовка
+        private byte[] _entrySize = new byte[2];//размер записи
+        private byte[] _reserved = new byte[20];//все зарезервированные 
+        private List<DbfField> _fields = new List<DbfField>();//список полей
+        private byte _terminator = Constants.Terminator;//признак окончания заголовка
+        
+        public DbfHeader()
         {
-            HasMemo = hasNemo;
+            HasMemo = false;
+            Date = DateTime.Now;
+            Count = 0;
+            HeaderSize = (short)_minHeader;
+            EntrySize = (short)1;
+        }
+
+        public DbfHeader(bool hasMemo, DateTime date, int count,short headerSize,short entrySize, List<DbfField> fields)
+        {
+            HasMemo = hasMemo;
             Date = date;
             Count = count;
             HeaderSize = headerSize;
             EntrySize = entrySize;
+            foreach (var i in fields)
+            {
+                var f = new DbfField(i.Name, i.Type, i.Offset, i.Size, i.Accuracy);
+                _fields.Add(f);
+            }
         }
-
+        
         public DbfHeader(byte[] data)
         {
             if (data.Length < _minHeader || (data.Length - _minHeader) % _fieldSize != 0)
@@ -41,8 +58,63 @@ namespace SQLInterpreter.Properties.FileCore
                 Buffer.BlockCopy(data, i*offset, buf, 0, buf.Length);
                 _fields.Add(new DbfField(buf));
             }
+        }
+        public void AddField(DbfField field)
+        {
+            DbfField f = (DbfField)field.Clone(); 
+            int offset = 1;
+            foreach (var i in _fields)
+            {
+                if (i.Name == field.Name) throw new ArgumentException("Field with this name was exist");
+                offset += i.Size;
+            }
+            if (field.Type == 'M') HasMemo = true;
+            _fields.Add(f);
+            Date = DateTime.Now;
+            HeaderSize += _fieldSize;
+            EntrySize += f.Size;
+            f.Offset = offset;
+        }
 
-
+        public void RenameField(string oldName, string newName)
+        {
+            foreach (var i in _fields)
+            {
+                if (i.Name == oldName)
+                {
+                    i.Name = newName;
+                    return;
+                }
+            }
+            throw new ArgumentException("field with this name was not found");
+        }
+        public void RemoveField(string fieldName)
+        {
+            bool isFound = false;
+            short deleteEntrySize = 0;
+            foreach (var i in _fields)
+            {
+                if (i.Name == fieldName)
+                {
+                    isFound = true;
+                    deleteEntrySize = i.Size;
+                    _fields.Remove(i);
+                    break;
+                }
+            }
+            if (!isFound) throw new ArgumentException("field with this name was not found");
+            bool hasMemo = false;
+            int offset = 1;
+            foreach (var i in _fields)
+            {
+                if (i.Type == 'M') hasMemo = true;
+                i.Offset = offset;
+                offset += i.Size;
+            }
+            HasMemo = hasMemo;
+            Date = DateTime.Now;
+            HeaderSize -= _fieldSize;
+            EntrySize -= deleteEntrySize;
         }
         
         public bool HasMemo
@@ -56,10 +128,10 @@ namespace SQLInterpreter.Properties.FileCore
 
         public DateTime Date
         {
-            get => new DateTime(_date[0], _date[1],_date[2]);
+            get => new DateTime(2000+_date[0], _date[1],_date[2]);
             set
             {
-                _date[0] = (byte)value.Year;
+                _date[0] = (byte)(value.Year%100);
                 _date[1] = (byte)value.Month;
                 _date[2] = (byte)value.Day;
             }
