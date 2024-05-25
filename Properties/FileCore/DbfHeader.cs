@@ -59,6 +59,11 @@ namespace SQLInterpreter.Properties.FileCore
                 _fields.Add(new DbfField(buf));
             }
         }
+        /// <summary>
+        /// добавляет поле в заголовок
+        /// </summary>
+        /// <param name="field">добавляемое поле</param>
+        /// <exception cref="ArgumentException"></exception>
         public void AddField(DbfField field)
         {
             DbfField f = (DbfField)field.Clone(); 
@@ -75,7 +80,12 @@ namespace SQLInterpreter.Properties.FileCore
             EntrySize += f.Size;
             f.Offset = offset;
         }
-
+        /// <summary>
+        /// переименовывает поле в заголовки
+        /// </summary>
+        /// <param name="oldName">старое имя поля</param>
+        /// <param name="newName">новое имя поля</param>
+        /// <exception cref="ArgumentException"></exception>
         public void RenameField(string oldName, string newName)
         {
             foreach (var i in _fields)
@@ -88,6 +98,28 @@ namespace SQLInterpreter.Properties.FileCore
             }
             throw new ArgumentException("field with this name was not found");
         }
+        /// <summary>
+        /// обновляет поле в заголовки
+        /// </summary>
+        /// <param name="field">поле</param>
+        /// <exception cref="ArgumentException"></exception>
+        public void UpdateField(DbfField field)
+        {
+            for (int i = 0; i < _fields.Count; i++)
+            {
+                if (_fields[i].Name == field.Name)
+                {
+                    _fields[i] = field;
+                    break;
+                }
+            }
+            throw new ArgumentException("field with this name was not found");
+        }
+        /// <summary>
+        /// удаляет поле из заголовка по его имени
+        /// </summary>
+        /// <param name="fieldName">имя поля</param>
+        /// <exception cref="ArgumentException"></exception>
         public void RemoveField(string fieldName)
         {
             bool isFound = false;
