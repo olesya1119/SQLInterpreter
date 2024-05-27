@@ -92,7 +92,7 @@ namespace SQLInterpreter.Properties.FileCore
             fileInfo.MoveTo(_name);
         }
         /// <summary>
-        /// метод для физического удаления помеченных полей
+        /// метод для физического удаления помеченных записей
         /// </summary>
         public void Truncate()
         {
