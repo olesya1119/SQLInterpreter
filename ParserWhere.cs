@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SQLInterpreter.Properties.FileCore;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,11 @@ namespace SQLInterpreter
     public class ParserWhere
     {
         List<string> command;
+        Table table;
         
 
         //	Список и приоритет операторов
-        public Dictionary<string, int> operationPriority = new Dictionary<string, int> {
+        private Dictionary<string, int> operationPriority = new Dictionary<string, int> {
             {"(", 0},
             {"or", 1},
             {"xor", 1},
@@ -29,9 +31,16 @@ namespace SQLInterpreter
             {"<>", 4},
         };
 
-        public ParserWhere(string commandString) {
+        public ParserWhere(Table table, string commandString) {
             command = GetCommand(commandString); //Преобразовали строковую команду в массив
-            List<string> posfix = GetPostfixForm(); //Получили постфиксную форму         
+            this.table = table;          
+        }
+
+        public List<Entry> GetResult()
+        {
+            List<string> posfix = GetPostfixForm(); //Получили постфиксную форму    
+            LogicEntries logicEntries = new LogicEntries(posfix);
+            return table.Where(logicEntries);
         }
 
 
@@ -86,7 +95,7 @@ namespace SQLInterpreter
         }
 
 
-        public List<string> GetPostfixForm()
+        private List<string> GetPostfixForm()
         {
             Stack<string> stack = new Stack<string>();//Операторы
             List<string> postfix = new List<string> { }; //Выходной список
@@ -135,154 +144,5 @@ namespace SQLInterpreter
             return postfix;
 
         }
-
-        //Старая версия функции
-        /*
-        public string GetPostfixForm()
-        {
-            Stack<string> stack= new Stack<string>();//Операторы
-            string postfix = ""; //Выходная строка
-            int openParentheses = 0, closeParentheses = 0; //Количество открытых и закрытх скобок
-
-
-            int index = 0; //Индекс элемента, который мы рассматриваем 
-            string element; //Рассматриваемый элемент
-            while (index < command.Length)
-            {
-                //Сначала рассмторим если длина рассматриваемого элемента равна 1
-                element = command[index].ToString();
-
-                //Сразу проверим является ли строковым значением
-                if (command[index] == '"')
-                {
-                    do
-                    {
-                        element += command[index + 1].ToString();
-                        index += 1;
-                    }
-                    while (command[index] != '"');
-                    postfix += element + " ";
-                    continue;
-                }
-
-                if (element == " ") //Если пробел, то двигаемся дальше
-                {
-                    index++;
-                    continue;
-                }
-
-                else if (element == "(")  //Если открывающаяся скобка 
-                {
-                    stack.Push(element); //Добавляем в стек
-                    openParentheses ++;
-
-                    index++;
-                    continue;
-                }
-                else if (element == ")") //Если закрывающаяся скобка
-                {
-                    closeParentheses ++;
-                    //	Заносим в выходную строку из стека всё вплоть до открывающей скобки
-                    while (stack.Count > 0 && stack.Peek() != "(")
-                        postfix += stack.Pop() + " ";
-                    //	Удаляем открывающуюся скобку из стека
-                    stack.Pop();
-
-                    index++;
-                    continue;
-                }
-                else if (operationPriority.ContainsKey(element) && command[index + 1] != '=') //Иначе является операцией сравнения
-                {
-                    //	Заносим в выходную строку все операторы из стека, имеющие более высокий приоритет
-                    while (stack.Count > 0 && (operationPriority[stack.Peek()] >= operationPriority[element]))
-                        postfix += stack.Pop() + " ";
-                    //	Заносим в стек оператор
-                    stack.Push(element);
-
-                    index ++;
-                    continue;
-                }
-
-                Console.WriteLine(element);
-
-                //Если элемент состоит из двух символов и следующий не пробел
-                if (index + 1 < command.Length && command[index + 1] != ' ')
-                    element += command[index + 1].ToString();
-                else
-                {
-                    postfix += element + " ";
-
-                    index++;
-                    continue;
-                }
-
-                Console.WriteLine(element);
-
-                //Проверяем, содержится ли элемент в списке операторов
-                if (operationPriority.ContainsKey(element))
-                {
-                    //Проверяем что слева и справа от or пробел 
-                    if (element == "or" && command[index - 1] == ' ' && command[index + 2] == ' ')
-                    {
-                        //	Заносим в выходную строку все операторы из стека, имеющие более высокий приоритет
-                        while (stack.Count > 0 && (operationPriority[stack.Peek()] >= operationPriority[element]))
-                            postfix += stack.Pop() + " ";
-                        //	Заносим в стек оператор
-                        stack.Push(element);
-                        index += 2;
-                        continue;
-                    }
-                }
-
-                //Если элемент состоит из трех символов и следующий не пробел
-                if (index + 2 < command.Length && command[index + 2] != ' ')
-                    element += command[index + 2].ToString();
-                else
-                {
-                    postfix += element + " ";
-                    index+=2;
-                    continue;
-                }
-
-                //Проверяем, содержится ли элмент в списке операторов
-                if (operationPriority.ContainsKey(element))
-                {
-                    //Проверяем что слева и справа пробел
-                    if (command[index - 1] == ' ' && command[index + 2] == ' ')
-                    {
-                        //	Заносим в выходную строку все операторы из стека, имеющие более высокий приоритет
-                        while (stack.Count > 0 && (operationPriority[stack.Peek()] >= operationPriority[element]))
-                            postfix += stack.Pop() + " ";
-                        //	Заносим в стек оператор
-                        stack.Push(element);
-                        index += 3;
-                        continue;
-                    }
-                }
-
-                //Иначе наш элемент либо название поля, либо какое-то нестрокове значение
-                index += 3;
-                //Проверим что в составе элемента нет пробелов
-
-                Console.WriteLine("|" + element + "|");
-                if (element[1] == ' ' || element[2] == ' ') throw new Exception("Синтаксическая ошибка");
-
-                //Значит добавляем символы пока не встретим пробел
-                while (command[index] != ' ')
-                {
-                    element += command[index + 1].ToString();
-                    index += 1;
-                }
-                postfix += element + " ";
-
-            }
-
-            //	Заносим все оставшиеся операторы из стека в выходную строку
-            foreach (string op in stack)
-                postfix += op;
-
-            return postfix;
-        }
-        */
     }
 }
