@@ -73,14 +73,14 @@ namespace SQLInterpreter.Properties.FileCore
     
         public Entry(DbfHeader header)
         {
-            _header = header;
+            _header = new DbfHeader(header.GetByte());
             _entry = new byte[header.EntrySize];
             _entry[0] = Constants.NoDelete;
         }
         
         public Entry(DbfHeader header, byte[] entry)
         {
-            _header = header;
+            _header = new DbfHeader(header.GetByte());
             _entry = entry;
         }
 

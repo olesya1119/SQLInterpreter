@@ -44,7 +44,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleHandler.cs" />
+    <Compile Include="Types\Date.cs" />
+    <Compile Include="FileCore\Constants.cs" />
+    <Compile Include="FileCore\DbfField.cs" />
+    <Compile Include="FileCore\DbfHeader.cs" />
+    <Compile Include="FileCore\DbtHeader.cs" />
+    <Compile Include="FileCore\Entry.cs" />
+    <Compile Include="FileCore\EntryVirtualArray.cs" />
+    <Compile Include="FileCore\Table.cs" />
+    <Compile Include="LogicEntries.cs" />
     <Compile Include="Parser.cs" />
+    <Compile Include="ParserWhere.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

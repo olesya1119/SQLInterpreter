@@ -1,5 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Remoting.Messaging;
+using System.Text;
 
 namespace SQLInterpreter.Properties.FileCore
 {
@@ -92,7 +95,7 @@ namespace SQLInterpreter.Properties.FileCore
             fileInfo.MoveTo(_name);
         }
         /// <summary>
-        /// метод для физического удаления помеченных полей
+        /// метод для физического удаления помеченных записей
         /// </summary>
         public void Truncate()
         {
@@ -127,6 +130,56 @@ namespace SQLInterpreter.Properties.FileCore
                 }
             }
             array.Close();
+        }
+
+        
+        public List<Entry> Where(LogicEntries logicEntries)
+        {
+            List<Entry> entries = new List<Entry>() { }; //Подходящие под условие записи
+            List<string> fieldsName = new List<string>() { };//Список имен полей
+            List<char> fieldsType = new List<char>() { };  //Список типов этих полей соотственно
+            List<string> entry; //Значения проверяемой в данный момент записи
+
+            EntryVirtualArray array = new EntryVirtualArray(_name); //Записи
+            List<DbfField> fields = array.Header.Fields; //Список полей
+
+            for (int i = 0; i < fields.Count; i++)
+            {
+                fieldsName.Add(fields[i].Name);
+                fieldsType.Add(fields[i].Type);
+            }
+
+            logicEntries.CreateCalcSample(fieldsName, fieldsType); //Создаем шаблон для проверки записи
+
+            for (int i = 0; i < array.Header.Count; i++)
+            {
+                //Перебираем каждую запись
+                entry = EntryToStringList(array[i]);
+                if (logicEntries.GetResult(entry))
+                {
+                    entries.Add(array[i]);
+                }
+            }
+            return entries;
+        
+        }
+
+        public List<string> EntryToStringList(Entry entry)
+        {
+            List<string> entryList = new List<string>() { };
+            List<DbfField> fields = entry.Header.Fields; //Список полей
+            List<byte> data = new List<byte> { };
+           
+
+            for (int i = 0; i < fields.Count; i++)
+            {
+                for (int j = fields[i].Offset; j < fields[i].Offset + fields[i].Size; j++) {
+                    data.Add(entry.GetByte()[j]);
+                }  
+                entryList.Add(Encoding.ASCII.GetString(data.ToArray()));
+                data.Clear();
+            }
+            return entryList;
         }
     }
 }
