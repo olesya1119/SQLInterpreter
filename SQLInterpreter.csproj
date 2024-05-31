@@ -44,8 +44,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\CreateCommand.cs" />
+    <Compile Include="Commands\DropCommand.cs" />
     <Compile Include="Commands\InsertCommand.cs" />
+    <Compile Include="Commands\MainParser.cs" />
     <Compile Include="Commands\OpenCommand.cs" />
+    <Compile Include="Commands\TruncateCommand.cs" />
     <Compile Include="ConsoleHandler.cs" />
     <Compile Include="FileCore\Constants.cs" />
     <Compile Include="FileCore\DbfField.cs" />

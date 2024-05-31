@@ -16,17 +16,27 @@ namespace SQLInterpreter.Commands
 
         private (string,string[]) Parse(string sqlCommand)
         {
-            string pattern = @"CREATE TABLE (\w+)\s*\(([^;]+)\);";
-            Match match = Regex.Match(sqlCommand, pattern, RegexOptions.IgnoreCase);
+            //string pattern = @"CREATE TABLE (\w+)\s*\(([^;]+)\);";
+            //Match match = Regex.Match(sqlCommand, pattern, RegexOptions.IgnoreCase);
 
-            if (!match.Success)
-            {
-                throw new ArgumentException("Неверная SQL команда");
-            }
-            string tableName = match.Groups[1].Value;
-            string fieldsPart = match.Groups[2].Value;
+            //if (!match.Success)
+            //{
+            //    throw new ArgumentException("Неверная SQL команда");
+            //}
 
-           
+            int index = sqlCommand.IndexOf(' ');
+            //string tableName = match.Groups[1].Value;
+            //string fieldsPart = match.Groups[2].Value;
+
+            //Разделить строку на две части
+            string tableName = sqlCommand.Substring(0, index);
+            string fieldsPart = sqlCommand.Substring(index + 1);
+            fieldsPart = fieldsPart.TrimEnd(';');
+            fieldsPart = fieldsPart.Trim('(', ')');
+
+
+
+
             string[] fields = fieldsPart.Split(new string[] { ", " }, StringSplitOptions.None);
             //Console.WriteLine(tableName);
             //foreach(var  field in fields)
@@ -52,15 +62,15 @@ namespace SQLInterpreter.Commands
             {
                 throw new ArgumentException("Неправильный тип поля");
             }
-            if (type.Equals("M"))
+            if (type.Equals('M'))
             {
                 size = 10;
             }
-            if (type.Equals("L"))
+            if (type.Equals('L'))
             {
                 size = 1;
             }
-            if (type.Equals("D"))
+            if (type.Equals('D'))
             {
                 size = 8;
             }

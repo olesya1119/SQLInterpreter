@@ -15,28 +15,54 @@ namespace SQLInterpreter.Properties.FileCore
         public Table(string name)
         {
             _name = name;
-            //EntryVirtualArray entryVirtualArray = new EntryVirtualArray(name);
-            //entryVirtualArray.Close();
+            EntryVirtualArray entryVirtualArray = new EntryVirtualArray(name);
+            entryVirtualArray.Close();
         }
-
-     
 
         /// <summary>
         /// метод добавления новой строки в таблицу
         /// </summary>
-        /// <param name="entry">новая запись таблицы</param>
-        public void AddEntry(string[] fields, string[] data)
+        /// <param name="fieldsHeaders">заголовки полей</param>
+        ///   /// <param name="data">данные полей</param>
+        public void AddEntry(string[] fieldsHeaders, string[] data)
         {
-            if (fields.Length != data.Length) throw new ArgumentException("Синтаксическая ошибка"); 
+            if (fieldsHeaders.Length != data.Length) throw new ArgumentException("Синтаксическая ошибка"); 
             EntryVirtualArray entryVirtualArray = new EntryVirtualArray(_name); //открываем таблицу
             DbfHeader header = entryVirtualArray.Header;
             Entry newEntry = new Entry(header);
-            for(int i = 0;i< fields.Length; i++)
+            for(int i = 0;i< fieldsHeaders.Length; i++)
             {
-                newEntry.Update(fields[i], Encoding.ASCII.GetBytes(data[i]));
+                var currfield = header.Fields.Find(x => x.Name == fieldsHeaders[i]);//находим тип текущего поля
+                if (currfield.Type == 'D')
+                {
+                    Date date = new Date(data[i]);
+                    newEntry.Update(fieldsHeaders[i], date.ToByteArray());
+                }
+                else
+                if (currfield.Type == 'L')// добавление логического типа данных 
+                {
+                    if (data[i].Equals("t"))
+                        newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes("t"));
+                    if (data[i].Equals("f"))
+                        newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes("f"));
+                    if (data[i].Equals("n"))
+                        newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes("n"));
+                }
+                else
+                if (currfield.Type == 'N' || currfield.Type == 'C') // добавление числовых и сивольных данных 
+                {
+                    newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes(data[i]));
+                }
+                else
+                if(currfield.Type == 'M') // мемо файлы
+                {
+
+                }
+
             }
             
             entryVirtualArray.AppendEntry(newEntry);
+            entryVirtualArray.Close();
         }
 
 

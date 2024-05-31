@@ -18,14 +18,18 @@ namespace SQLInterpreter
             CreateCommand createCommand = new CreateCommand();
             OpenCommand openCommand = new OpenCommand();
             InsertCommand insertCommand = new InsertCommand();
+            DropCommand dropCommand = new DropCommand();
+            MainParser mainParser = new MainParser();
               while (true)
                 {
                 try { 
                     Console.Write("SQL>>");
                     var str = Console.ReadLine();
+                    mainParser.Parse(str);  
                     //createCommand.Create(str);  
                     //openCommand.Open(str);
-                    insertCommand.Insert(str);
+                    //insertCommand.Insert(str);
+                    //dropCommand.Drop(str);
 
 
             }catch(Exception ex)

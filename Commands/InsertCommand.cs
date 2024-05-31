@@ -32,7 +32,8 @@ namespace SQLInterpreter.Commands
             for( int i = 0;i<valuesArgs.Length;i++) {
                 valuesArgs[i]= valuesArgs[i].Replace("\"", string.Empty);
                 valuesArgs[i] = valuesArgs[i].Replace("(", string.Empty);
-                valuesArgs[i] = valuesArgs[i].Replace(")", string.Empty);
+                valuesArgs[i] = valuesArgs[i].Replace(")", string.Empty);   
+                valuesArgs[i] = valuesArgs[i].TrimStart(' ');
             }
           
             return (tableName, fieldsArgs, valuesArgs);
