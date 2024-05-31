@@ -44,6 +44,11 @@ namespace SQLInterpreter
         }
 
 
+        /// <summary>
+        /// Преобразование строки - команды до удобного для парсинга вида - строковый спискок
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
         private List<string> GetCommand(string s)
         {
             string commandString = s;
@@ -52,7 +57,7 @@ namespace SQLInterpreter
 
             int index = 0; //Индекс рассматриваемого элемента
 
-
+            //Расставляем пробелы
             while (index < commandString.Length)
             {
                 if ((commandString[index] == '>' || commandString[index] == '<') && (commandString[index + 1] == '>' || commandString[index + 1] == '<' || commandString[index + 1] == '='))
@@ -73,6 +78,7 @@ namespace SQLInterpreter
 
             string[] stringArray1 = commandString.Split('\"'), stringArray2;
             index = 1;
+
 
             for (int i = 0; i < stringArray1.Length; i++)
             {
