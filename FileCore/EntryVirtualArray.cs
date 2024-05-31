@@ -7,7 +7,7 @@ using System.Runtime.Remoting.Messaging;
 namespace SQLInterpreter.Properties.FileCore
 {
     /// <summary>
-    /// для работы с данными находящимися  вфайле
+    /// для работы с данными находящимися в файле
     /// </summary>
     public class EntryVirtualArray
     {

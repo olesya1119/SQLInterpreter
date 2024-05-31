@@ -46,7 +46,9 @@
     <Compile Include="ConsoleHandler.cs" />
     <Compile Include="FileCore\Constants.cs" />
     <Compile Include="FileCore\DbfField.cs" />
+    <Compile Include="FileCore\DbtFile.cs" />
     <Compile Include="FileCore\DbfHeader.cs" />
+    <Compile Include="FileCore\DbtBlock.cs" />
     <Compile Include="FileCore\DbtHeader.cs" />
     <Compile Include="FileCore\Entry.cs" />
     <Compile Include="FileCore\EntryVirtualArray.cs" />
@@ -57,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="res\dbtfile.dbt" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
