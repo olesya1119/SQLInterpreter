@@ -13,7 +13,6 @@ namespace SQLInterpreter.Select
         private Table table;
 
         private List<string> fieldsName;
-        private string logicEntries;
 
 
         public ParserSelect(string command, Table table) {
@@ -24,16 +23,15 @@ namespace SQLInterpreter.Select
 
         private void Parse()
         {
-            command.TrimEnd(',');
             bool fromIsFound = false;
-            string field = "", booleanExpression = "";
+            string field = "", logicEntries = "";
 
             //Отделили часть с названием полей от логического запроса
             for (int i = 0; i < command.Length - 6; i++)
             {
 
                 if (fromIsFound)
-                    booleanExpression += command[i].ToString();
+                    logicEntries += command[i + 5].ToString();
 
                 else
                 {
@@ -44,21 +42,7 @@ namespace SQLInterpreter.Select
 
             //Разделяем названия полей на строковый список
             fieldsName =  field.Split(new char[]{ ',', ' '}).ToList();
-
-            //Убираем у команды where и название таблицы
-            bool whereIsFound = false;
-
-            for (int i = 0; i < booleanExpression.Length - 7; i++)
-            {
-                if (whereIsFound)
-                    logicEntries += booleanExpression[i].ToString();
-                else
-                {
-                    if (booleanExpression.Substring(i, 7).ToLower() == " where ") whereIsFound = true;
-                }
-            }
-
-            if (whereIsFound == false) logicEntries = "True";
+            command = logicEntries;
         }
         
         public string GetResult(string command)

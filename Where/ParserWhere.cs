@@ -51,7 +51,27 @@ namespace SQLInterpreter
         /// <returns></returns>
         private List<string> GetCommand(string s)
         {
-            string commandString = s;
+            string logicEntries = "";
+
+            //Убираем у команды where и название таблицы
+            bool whereIsFound = false;
+
+            for (int i = 0; i < s.Length - 7; i++)
+            {
+                if (whereIsFound)
+                    logicEntries += s[i + 6].ToString();
+                else
+                {
+                    if (s.Substring(i, 7).ToLower() == " where ") whereIsFound = true;
+                }
+            }
+
+            if (s[s.Length - 1] != ';') throw new Exception("Синтаксическая ошибка");
+
+
+            if (whereIsFound == false || logicEntries[logicEntries.Length - 1] == '*') logicEntries = "True";
+
+            string commandString = logicEntries;
             List<string> command = new List<string> { };
             //Раставим пробелы возле всех операций, кроме логических связок
 
