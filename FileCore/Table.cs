@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.Remoting.Messaging;
+using System.Text;
 
 namespace SQLInterpreter.Properties.FileCore
 {
@@ -13,7 +15,31 @@ namespace SQLInterpreter.Properties.FileCore
         public Table(string name)
         {
             _name = name;
+            //EntryVirtualArray entryVirtualArray = new EntryVirtualArray(name);
+            //entryVirtualArray.Close();
         }
+
+     
+
+        /// <summary>
+        /// метод добавления новой строки в таблицу
+        /// </summary>
+        /// <param name="entry">новая запись таблицы</param>
+        public void AddEntry(string[] fields, string[] data)
+        {
+            if (fields.Length != data.Length) throw new ArgumentException("Синтаксическая ошибка"); 
+            EntryVirtualArray entryVirtualArray = new EntryVirtualArray(_name); //открываем таблицу
+            DbfHeader header = entryVirtualArray.Header;
+            Entry newEntry = new Entry(header);
+            for(int i = 0;i< fields.Length; i++)
+            {
+                newEntry.Update(fields[i], Encoding.ASCII.GetBytes(data[i]));
+            }
+            
+            entryVirtualArray.AppendEntry(newEntry);
+        }
+
+
         /// <summary>
         /// метод добавления нового поля в таблицу
         /// </summary>
@@ -40,6 +66,8 @@ namespace SQLInterpreter.Properties.FileCore
         /// метод удаления поля из таблицы
         /// </summary>
         /// <param name="columnName">имя удаляемого поля</param>
+        /// 
+
         public void RemoveColumn(string columnName)
         {
             string timedFileName = "9821383831.dbf";

@@ -43,6 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CreateCommand.cs" />
+    <Compile Include="Commands\InsertCommand.cs" />
+    <Compile Include="Commands\OpenCommand.cs" />
     <Compile Include="ConsoleHandler.cs" />
     <Compile Include="FileCore\Constants.cs" />
     <Compile Include="FileCore\DbfField.cs" />
@@ -54,6 +57,7 @@
     <Compile Include="Parser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\Date.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
