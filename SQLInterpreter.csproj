@@ -47,6 +47,7 @@
     <Compile Include="ParserDelete.cs" />
     <Compile Include="ParserRestore.cs" />
     <Compile Include="ParserSelect.cs" />
+    <Compile Include="ParserUpdate.cs" />
     <Compile Include="Types\Date.cs" />
     <Compile Include="FileCore\Constants.cs" />
     <Compile Include="FileCore\DbfField.cs" />
