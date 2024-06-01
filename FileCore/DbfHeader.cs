@@ -149,6 +149,20 @@ namespace SQLInterpreter.Properties.FileCore
             EntrySize -= deleteEntrySize;
         }
         
+        /// <summary>
+        /// Получить поле из заголовка по имени поля
+        /// </summary>
+        /// <param name="fieldName">Имя поля</param>
+        /// <returns></returns>
+        public DbfField GetField(string fieldName)
+        {
+            foreach (var v in _fields)
+            {
+                if (v.Name == fieldName) return v;
+            }
+            throw new ArgumentException("Поля с таким именем не было найдено");
+        }
+        
         public bool HasMemo
         {
             get => (_hasMemo==Constants.Memo);

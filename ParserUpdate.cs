@@ -9,14 +9,18 @@ namespace SQLInterpreter
 {
     public class ParserUpdate
     {
-        private Table _table;
+        //private Table _table;
         private List<string> _command = new List<string>();
-        public List<string> Command { get => _command; }//{table name, field1 , value1, field2 , value2, ...}
-        public ParserUpdate(Table table, string commandString)
+        public List<string> Command { get => _command; } //{field1 , value1, field2 , value2, ...}
+        public ParserUpdate(string commandString)
+        {
+            Parse(commandString);
+        }
+        
+        private void Parse(string commandString)
         {
             commandString = commandString.Trim().TrimEnd(';');
-            Console.WriteLine(commandString.Split(' ').Length);
-            _command.Add(commandString.Split(' ')[1]); // Добавили название таблицы
+            // _command.Add(commandString.Split(' ')[1]); // Добавили название таблицы
             int setIndex = -1, whereIndex = -1;
             for (int i = 8; i < commandString.Length - 7; i++)
             {
@@ -24,7 +28,6 @@ namespace SQLInterpreter
                 if (commandString.Substring(i, 7).ToLower() == " where ") whereIndex = i;
             }
             if (setIndex == -1 || whereIndex == -1) throw new Exception("set и/или where не найден(ы)");
-            List<Entry> entries = new ParserWhere(table, commandString).GetResult();
             string argumentsWithData = commandString.Substring(setIndex, whereIndex - setIndex), buf = "";
             bool nowIsString = false, nowIsArgument = true;
             for (int i = setIndex; i < whereIndex; i++)
@@ -74,7 +77,6 @@ namespace SQLInterpreter
                 }
                 if (i == whereIndex - 1) _command.Add(buf);
             }
-            _table = table;
         }
     }
 }
