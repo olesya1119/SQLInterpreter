@@ -22,7 +22,7 @@ namespace SQLInterpreter.FileCore
         }
         public DbtBlock(byte[] data)
         {
-            Buffer.BlockCopy(data, 0, _data, 0, data.Length-1);
+            Buffer.BlockCopy(data, 0, _data, 0, data.Length);
         }
     }
 }
