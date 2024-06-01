@@ -10,7 +10,7 @@ namespace SQLInterpreter.Properties.FileCore
     {
         private static short blockSize = 512;
         private static short headerSize = 4;
-        private uint _nextFreeBlock; // Следующий пустой блок
+        private uint _nextFreeBlock=1; // Следующий пустой блок
         private List<DbtBlock> _blocks = new List<DbtBlock>(); // Массив блоков для хранения текста
         public short BlockSize { get => blockSize; }
         public short HeaderSize { get => headerSize; }

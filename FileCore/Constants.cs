@@ -7,6 +7,8 @@ namespace SQLInterpreter.Properties.FileCore
     /// </summary>
     public static class Constants
     {
+        public static short blockSize = 512;
+        public static short headerSize = 4;
         public static char[] Types = new[] { 'C', 'D', 'N', 'L', 'M' };
         public static byte Terminator = 0x0D;
         public static byte NoMemo = 0x03;

@@ -53,12 +53,12 @@ namespace SQLInterpreter.FileCore
         /// <returns></returns>
         DbtHeader ReadFile()
         {
-            _stream.Seek(_header.BlockSize - _header.HeaderSize, SeekOrigin.Begin);
-            byte[] buf = new byte[_header.HeaderSize];
-            _stream.Read(buf, 0, _header.HeaderSize);
+            _stream.Seek(0, SeekOrigin.Begin);
+            byte[] buf = new byte[Constants.headerSize];
+            _stream.Read(buf, 0, Constants.headerSize);
             uint nextFreeBlock = BitConverter.ToUInt32(buf, 0);
-            _stream.Seek(_header.BlockSize, SeekOrigin.Begin);
-            byte[] data = new byte[(nextFreeBlock - 1) * _header.BlockSize];
+            _stream.Seek(Constants.blockSize, SeekOrigin.Begin);
+            byte[] data = new byte[(nextFreeBlock - 1) * Constants.blockSize];
             _stream.Read(data, 0, data.Length);
             return new DbtHeader(data);
         }

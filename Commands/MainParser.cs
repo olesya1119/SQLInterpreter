@@ -10,15 +10,40 @@ namespace SQLInterpreter.Commands
 {
     internal class MainParser
     {
+        private Table currentTable = null;
         public void Parse(string str) {
+            
 
             int index = str.IndexOf(' ');
             string command = str.Substring(0, index);
             str = str.Remove(0,index+1);
+
+            if (command.Equals("OPEN"))
+            {
+                try
+                {
+                    OpenCommand openCommand = new OpenCommand();
+                    currentTable = openCommand.Open(str);
+                    Console.WriteLine("SQL>>Таблица {0} открыта",currentTable.Name);
+                }
+                catch(Exception ex) {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            if (command.Equals("CLOSE"))
+            {
+                Console.WriteLine("SQL>>Таблица закрыта");
+                currentTable = null;
+            }
+
             if (command.Equals("SELECT"))
             {
-                ParserSelect parserSelect = new ParserSelect(str, new Table("table1.dbf"));
-                Console.WriteLine(parserSelect.GetResult());
+                if (currentTable != null)
+                {
+                    ParserSelect parserSelect = new ParserSelect(str, currentTable);
+                    Console.WriteLine(parserSelect.GetResult());
+                }else Console.WriteLine("Нет открытых таблиц.");
             }
             if (command.Equals("CREATE"))
             {

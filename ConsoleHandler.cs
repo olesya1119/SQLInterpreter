@@ -22,7 +22,6 @@ namespace SQLInterpreter
             MainParser mainParser = new MainParser();
             while (true)
             {
-
                 Console.Write("SQL>>");
                 var str = Console.ReadLine();
                 mainParser.Parse(str);

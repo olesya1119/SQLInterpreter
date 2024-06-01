@@ -16,13 +16,13 @@ namespace SQLInterpreter.FileCore
             get
             {
                 short len = (short)(blockSize - 1);
-                while (_data[len] == 0x0) len--;
+                while (_data[len] == 0x0 && len != 0) len--;
                 return len;
             }
         }
         public DbtBlock(byte[] data)
         {
-            Buffer.BlockCopy(data, 0, _data, 0, data.Length);
+            Buffer.BlockCopy(data, 0, _data, 0, data.Length-1);
         }
     }
 }

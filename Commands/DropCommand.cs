@@ -14,7 +14,7 @@ namespace SQLInterpreter.Commands
             tableName = tableName.TrimEnd(';');
             if (File.Exists(tableName + ".dbt"))
             {
-                File.Delete(tableName + ".dbf");
+                File.Delete(tableName + ".dbt");
             }
 
             if (File.Exists(tableName + ".dbf"))

@@ -178,7 +178,7 @@ namespace SQLInterpreter.Properties.FileCore
         private long FindOffset(int index)
         {
             if (index < 0 || index >= _header.Count) throw new IndexOutOfRangeException("index bigger then max");
-            return _header.HeaderSize + index * _header.EntrySize;
+            return Constants.headerSize + index * _header.EntrySize;
         }
         /// <summary>
         /// для удаления ненужных данных из конца файла
@@ -195,7 +195,7 @@ namespace SQLInterpreter.Properties.FileCore
         /// <param name="entry">запись</param>
         public void AppendEntry(Entry entry)
         {
-            long offset = (_header.Count!=0)?FindOffset(_header.Count-1)+_header.EntrySize:_header.HeaderSize;
+            long offset = (_header.Count!=0)?FindOffset(_header.Count-1)+_header.EntrySize:Constants.headerSize;
             _stream.Seek(offset, SeekOrigin.Begin);
             var e = entry.GetByte();
             _stream.Write(e,0,e.Length);

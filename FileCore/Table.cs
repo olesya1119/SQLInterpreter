@@ -15,6 +15,8 @@ namespace SQLInterpreter.Properties.FileCore
     {
         private string _name;
 
+        public string Name { get { return _name; } }
+
         public Table(string name)
         {
             _name = name;
@@ -27,10 +29,10 @@ namespace SQLInterpreter.Properties.FileCore
         /// метод добавления новой строки в таблицу
         /// </summary>
         /// <param name="fieldsHeaders">заголовки полей</param>
-        ///   /// <param name="data">данные полей</param>
-        public void AddEntry(string[] fieldsHeaders, string[] data)
+        ///   /// <param name="fieldData">данные полей</param>
+        public void AddEntry(string[] fieldsHeaders, string[] fieldData)
         {
-            if (fieldsHeaders.Length != data.Length) throw new ArgumentException("Синтаксическая ошибка"); 
+            if (fieldsHeaders.Length != fieldData.Length) throw new ArgumentException("Синтаксическая ошибка"); 
             EntryVirtualArray entryVirtualArray = new EntryVirtualArray(_name); //открываем таблицу
             DbfHeader header = entryVirtualArray.Header;
             Entry newEntry = new Entry(header);
@@ -39,28 +41,30 @@ namespace SQLInterpreter.Properties.FileCore
                 var currfield = header.Fields.Find(x => x.Name == fieldsHeaders[i]);//находим тип текущего поля
                 if (currfield.Type == 'D')
                 {
-                    Date date = new Date(data[i]);
+                    Date date = new Date(fieldData[i]);
                     newEntry.Update(fieldsHeaders[i], date.ToByteArray());
                 }
                 else
                 if (currfield.Type == 'L')// добавление логического типа данных 
                 {
-                    if (data[i].Equals("t"))
+                    if (fieldData[i].Equals("t"))
                         newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes("t"));
-                    if (data[i].Equals("f"))
+                    if (fieldData[i].Equals("f"))
                         newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes("f"));
-                    if (data[i].Equals("n"))
+                    if (fieldData[i].Equals("n"))
                         newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes("n"));
                 }
                 else
                 if (currfield.Type == 'N' || currfield.Type == 'C') // добавление числовых и сивольных данных 
                 {
-                    newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes(data[i]));
+                    newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes(fieldData[i]));
                 }
                 else
                 if(currfield.Type == 'M') // мемо файлы
                 {
-
+                    fieldData[i]=fieldData[i].TrimStart('@');
+                    uint index = WriteToMemo(fieldData[i], _name);
+                    newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes(index.ToString()));
                 }
 
             }
@@ -72,7 +76,7 @@ namespace SQLInterpreter.Properties.FileCore
         {
             FileInfo fileInfo = new FileInfo(filePath);
             string textData;
-            filePath=filePath.TrimStart('@');
+            
             if (fileInfo.Length > 512)
             {
                 throw new ArgumentException("Ошибка: Размер текстового файла превышает 512 байт.");
@@ -89,11 +93,20 @@ namespace SQLInterpreter.Properties.FileCore
                 {
                     throw new ArgumentException("Ошибка при чтении файла: " + ex.Message);
                 }
+                
             }
 
-            DbtFile dbtfile = new DbtFile(tableName+".dbt");
+            DbtFile dbtfile=null;
+            string dbtfilePath = tableName.Split('.')[0] + ".dbt";
+            if (File.Exists(dbtfilePath)){
+                dbtfile = new DbtFile(dbtfilePath);            
+            }
+            else {
+                 dbtfile = new DbtFile(dbtfilePath, null);
+            }
             uint blockIndex = dbtfile.Header.NextFreeBlock;
             dbtfile.AddData(Encoding.ASCII.GetBytes(textData));
+            dbtfile.Close();
             return blockIndex;
         }
 
@@ -230,8 +243,6 @@ namespace SQLInterpreter.Properties.FileCore
             array.Close();
             return entries;
         }
-
-
 
 
     }
