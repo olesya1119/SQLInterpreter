@@ -36,11 +36,11 @@ namespace SQLInterpreter
             this.table = table;          
         }
 
-        public List<Entry> GetResult()
+        public LogicEntries GetResult()
         {
             List<string> posfix = GetPostfixForm(); //Получили постфиксную форму    
             LogicEntries logicEntries = new LogicEntries(posfix);
-            return table.Where(logicEntries);
+            return logicEntries;
         }
 
 

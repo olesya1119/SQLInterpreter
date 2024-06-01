@@ -11,21 +11,23 @@ namespace SQLInterpreter
     {
         private string command;
         private Table table;
+        IActivity activity;
 
 
         public ParserRestore(string command, Table table)
         {
             this.command = command;
             this.table = table;
+            activity = new ActivityRestore();
         }
 
 
         public string GetResult()
         {
             ParserWhere parserWhere = new ParserWhere(table, command);
-            List<Entry> entries = parserWhere.GetResult();
+            LogicEntries logicEntries = parserWhere.GetResult();
     
-            return "Изменено " + table.Restore(entries) + "строк.\n"; //Результирующая строка
+            return "Изменено " + table.RunForArray(activity, logicEntries) + "строк.\n"; //Результирующая строка
 
         }
  

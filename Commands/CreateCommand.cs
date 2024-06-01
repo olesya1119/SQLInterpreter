@@ -79,10 +79,14 @@ namespace SQLInterpreter.Commands
                 int startIndex = parts[1].IndexOf('(');
                 int endIndex = parts[1].IndexOf(')');
                 string numbers = parts[1].Substring(startIndex + 1, endIndex - startIndex - 1);
-                string[] splittedNumbers = numbers.Split(',');
-                size = byte.Parse(splittedNumbers[0]);
-                accuracy = byte.Parse(splittedNumbers[1]);
-            }else if (type.Equals('C'))//парсим только ширину
+                if (numbers.Contains(","))
+                {
+                    string[] splittedNumbers = numbers.Split(',');
+                    size = byte.Parse(splittedNumbers[0]);
+                    accuracy = byte.Parse(splittedNumbers[1]);
+                } else size = byte.Parse(numbers);
+            }
+            else if (type.Equals('C'))//парсим только ширину
             {
                 int startIndex = parts[1].IndexOf('(');
                 int endIndex = parts[1].IndexOf(')');

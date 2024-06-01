@@ -11,20 +11,23 @@ namespace SQLInterpreter
     {
         private string command;
         private Table table;
+        private IActivity activity;
 
 
         public ParserDelete(string command, Table table)
         {
             this.command = command;
             this.table = table;
+            activity = new ActivityDelete();
         }
 
         public string GetResult()
         {
             ParserWhere parserWhere = new ParserWhere(table, command);
-            List<Entry> entries = parserWhere.GetResult();
 
-            return "Изменено " + table.Delete(entries) + "строк.\n"; //Результирующая строка
+            List<Entry> entries = table.RunForArray(activity, parserWhere.GetResult());
+
+            return "Изменено " + entries.Count + "строк.\n"; //Результирующая строка
 
         }
     }

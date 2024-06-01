@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SQLInterpreter.Properties.FileCore;
+using SQLInterpreter.Select;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +15,11 @@ namespace SQLInterpreter.Commands
             int index = str.IndexOf(' ');
             string command = str.Substring(0, index);
             str = str.Remove(0,index+1);
+            if (command.Equals("SELECT"))
+            {
+                ParserSelect parserSelect = new ParserSelect(str, new Table("table1.dbf"));
+                Console.WriteLine(parserSelect.GetResult());
+            }
             if (command.Equals("CREATE"))
             {
                 CreateCommand createCommand = new CreateCommand();

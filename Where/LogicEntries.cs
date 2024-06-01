@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SQLInterpreter.Properties.FileCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -24,9 +25,41 @@ namespace SQLInterpreter
             command = postfixCommand;
         }
 
-        //Создание шаблона расчета команды
-        public void CreateCalcSample(List<string> fieldNames, List<char> fieldTypes)
+        /// <summary>
+        /// Перевод запись в строковый спискок
+        /// </summary>
+        private List<string> EntryToStringList(Entry entry)
         {
+            List<string> entryList = new List<string>() { };
+            List<DbfField> fields = entry.Header.Fields; //Список полей
+            List<byte> data = new List<byte> { };
+
+
+            for (int i = 0; i < fields.Count; i++)
+            {
+                for (int j = fields[i].Offset; j < fields[i].Offset + fields[i].Size; j++)
+                {
+                    data.Add(entry.GetByte()[j]);
+                }
+                entryList.Add(Encoding.ASCII.GetString(data.ToArray()).Split('\0')[0]);
+                data.Clear();
+            }
+            return entryList;
+        }
+
+        //Создание шаблона расчета команды
+        private void CreateCalcSample(Entry entry)
+        {
+            List<DbfField> fields = entry.Header.Fields; //Список полей
+            List<string> fieldsNameFromTable = new List<string>() { };//Список имен полей
+            List<char> fieldsTypeFromTable = new List<char>() { };  //Список типов этих полей соотственно
+
+            for (int i = 0; i < fields.Count; i++)
+            {
+                fieldsNameFromTable.Add(fields[i].Name);
+                fieldsTypeFromTable.Add(fields[i].Type);
+            }
+
             bool itsField = true;
             int index;
             for (int i = 0; i < command.Count; i++){
@@ -35,11 +68,11 @@ namespace SQLInterpreter
                 {
                     if (itsField)
                     {
-                        index = Array.IndexOf(fieldNames.ToArray(), command[i]);
+                        index = Array.IndexOf(fieldsNameFromTable.ToArray(), command[i]);
                         if (index == -1) throw new Exception("Нет такого поля");
                         itsField = false;
                         fieldIndex.Add(index);
-                        this.fieldTypes.Add(fieldTypes[index]);
+                        this.fieldTypes.Add(fieldsTypeFromTable[index]);
                     }
                     else
                     {
@@ -49,8 +82,13 @@ namespace SQLInterpreter
             } 
         }
 
-        public bool GetResult(List<string> entry)
+        public bool GetResult(Entry entry)
         {
+            List<string> entryList = EntryToStringList(entry);
+
+            CreateCalcSample(entry);
+
+
             List<string> command = new List<string>(this.command);
             int index = 0;
 
@@ -79,7 +117,7 @@ namespace SQLInterpreter
                     }
 
                     //Теперь выполним операцию
-                    command[i] = ComparisonExecute(entry[fieldIndex[index]], command[i - 1], fieldTypes[index], command[i]);
+                    command[i] = ComparisonExecute(entryList[fieldIndex[index]], command[i - 1], fieldTypes[index], command[i]);
 
                     index++;
                     //Убираем название поля и значение
@@ -131,6 +169,12 @@ namespace SQLInterpreter
                 if (b == "f" || b == "F" || b == "N" || b == "n") b = "f";
                 if (a == "t" || a == "T" || a == "Y" || a == "y") a = "t";
                 if (b == "t" || b == "T" || b == "Y" || b == "y") b = "t";
+            }
+
+            if (type == 'C')
+            {
+                a = a.Trim('\"');
+                b = b.Trim('\"');
             }
 
             switch (op)
