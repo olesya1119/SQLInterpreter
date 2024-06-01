@@ -34,12 +34,8 @@ namespace SQLInterpreter.Properties.FileCore
         /// <param name="data">Текст, который нужно записать</param>
         public void AddData(byte[] data)
         {
-            uint dataLength = (uint)data.Length, countBlocks = (uint)(dataLength / Constants.blockSize + (dataLength % Constants.blockSize > 0 ? 1 : 0));
-            _nextFreeBlock += countBlocks;
-            for (int i = 0; i < countBlocks; i++) // Добавляем текст блоками
-            {
-                _blocks.Add(new DbtBlock(new ArraySegment<byte>(data, i * Constants.blockSize, (int)(i + 1 != countBlocks ? (i + 1) * Constants.blockSize : i * Constants.blockSize + dataLength % Constants.blockSize)).ToArray()));
-            }
+            if (data.Length > Constants.blockSize) throw new ArgumentException($"Текст не может быть больше {Constants.blockSize} байт");
+            _blocks.Add(new DbtBlock(data));
         }
 
         /// <summary>
