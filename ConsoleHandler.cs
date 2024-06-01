@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SQLInterpreter.Commands;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,12 +15,30 @@ namespace SQLInterpreter
     {
         public ConsoleHandler() {
             Parser parser = new Parser();
+            CreateCommand createCommand = new CreateCommand();
+            OpenCommand openCommand = new OpenCommand();
+            InsertCommand insertCommand = new InsertCommand();
+            DropCommand dropCommand = new DropCommand();
+            MainParser mainParser = new MainParser();
+              while (true)
+                {
+                try { 
+                    Console.Write("SQL>>");
+                    var str = Console.ReadLine();
+                    mainParser.Parse(str);  
+                    //createCommand.Create(str);  
+                    //openCommand.Open(str);
+                    //insertCommand.Insert(str);
+                    //dropCommand.Drop(str);
 
-            while (true)
+
+            }catch(Exception ex)
             {
+                Console.WriteLine(ex.Message);
+            }
 
-
-            }           
+        }
+            
         }
     }
 }

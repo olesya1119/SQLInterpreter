@@ -127,7 +127,7 @@ namespace SQLInterpreter.Properties.FileCore
             foreach (var i in _header.Fields)
             {
                 if (i.Name == fieldName)
-                {
+                {   
                     int offset = i.Offset;
                     short size = i.Size;
                     if (data.Length > size) throw new ArgumentException("data is too big");
