@@ -8,12 +8,8 @@ namespace SQLInterpreter.Properties.FileCore
 {
     public class DbtHeader
     {
-        private static short blockSize = 512;
-        private static short headerSize = 4;
         private uint _nextFreeBlock=1; // Следующий пустой блок
         private List<DbtBlock> _blocks = new List<DbtBlock>(); // Массив блоков для хранения текста
-        public short BlockSize { get => blockSize; }
-        public short HeaderSize { get => headerSize; }
         public uint NextFreeBlock { get => _nextFreeBlock; }
 
         public DbtHeader()
@@ -38,11 +34,11 @@ namespace SQLInterpreter.Properties.FileCore
         /// <param name="data">Текст, который нужно записать</param>
         public void AddData(byte[] data)
         {
-            uint dataLength = (uint)data.Length, countBlocks = (uint)(dataLength / blockSize + (dataLength % blockSize > 0 ? 1 : 0));
+            uint dataLength = (uint)data.Length, countBlocks = (uint)(dataLength / Constants.blockSize + (dataLength % Constants.blockSize > 0 ? 1 : 0));
             _nextFreeBlock += countBlocks;
             for (int i = 0; i < countBlocks; i++) // Добавляем текст блоками
             {
-                _blocks.Add(new DbtBlock(new ArraySegment<byte>(data, i * blockSize, (int)(i + 1 != countBlocks ? (i + 1) * blockSize : i * blockSize + dataLength % blockSize)).ToArray()));
+                _blocks.Add(new DbtBlock(new ArraySegment<byte>(data, i * Constants.blockSize, (int)(i + 1 != countBlocks ? (i + 1) * Constants.blockSize : i * Constants.blockSize + dataLength % Constants.blockSize)).ToArray()));
             }
         }
 
@@ -80,19 +76,19 @@ namespace SQLInterpreter.Properties.FileCore
         {
             if (number == 0) throw new ArgumentException("Нельзя редактировать заголовок .dbt файла с помощью этого метода");
             if (number >= _nextFreeBlock) throw new ArgumentException("Этот блок ещё не записан, и его нельзя редактировать");
-            if (data.Length > BlockSize) throw new ArgumentException($"Текст не может быть больше {BlockSize} байт");
+            if (data.Length > Constants.blockSize) throw new ArgumentException($"Текст не может быть больше {Constants.blockSize} байт");
             _blocks.RemoveAt((int)number - 1);
             _blocks.Insert((int)number - 1, new DbtBlock(data));
         }
 
         public byte[] GetByte()
         {
-            byte[] data = new byte[_blocks.Count * blockSize];
+            byte[] data = new byte[_blocks.Count * Constants.blockSize];
             int offset = 0;
             foreach (var block in _blocks)
             {
                 Buffer.BlockCopy(block.Data, 0, data, offset, block.Length + 1);
-                offset += blockSize;
+                offset += Constants.blockSize;
             }
             return data;
         }

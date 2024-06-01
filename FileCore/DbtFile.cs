@@ -86,10 +86,10 @@ namespace SQLInterpreter.FileCore
         public void RewriteFile(DbtHeader header)
         {
             _stream.Seek(0, SeekOrigin.Begin);
-            byte[] buf = new byte[header.BlockSize];
+            byte[] buf = new byte[Constants.blockSize];
             Buffer.BlockCopy(BitConverter.GetBytes(header.NextFreeBlock), 0, buf, 0, 3);
-            _stream.Write(buf, 0, header.BlockSize);
-            _stream.Seek(header.BlockSize, SeekOrigin.Begin);
+            _stream.Write(buf, 0, Constants.blockSize);
+            _stream.Seek(Constants.blockSize, SeekOrigin.Begin);
             var head = header.GetByte();
             _stream.Write(head, 0, head.Length);
         }
@@ -108,7 +108,7 @@ namespace SQLInterpreter.FileCore
         /// <exception cref="ArgumentException"></exception>
         public void AddData(byte[] data)
         {
-            if (data.Length > _header.BlockSize) throw new ArgumentException($"Текст не может быть больше {_header.BlockSize} байт");
+            if (data.Length > Constants.blockSize) throw new ArgumentException($"Текст не может быть больше {Constants.blockSize} байт");
             _header.AddData(data);
         }
 
