@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Memo/DbtBlock.cs
+/Memo
+/SQLInterpreter.csproj
+/FileCore/DbtHeader.cs
+/FileCore/DbtHeader.cs
