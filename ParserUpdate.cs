@@ -11,7 +11,7 @@ namespace SQLInterpreter
     {
         private Table _table;
         private List<string> _command = new List<string>();
-        public List<string> Command { get => _command; }
+        public List<string> Command { get => _command; }//{table name, field1 , value1, field2 , value2, ...}
         public ParserUpdate(Table table, string commandString)
         {
             commandString = commandString.Trim().TrimEnd(';');

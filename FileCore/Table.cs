@@ -1,6 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
+using SQLInterpreter.FileCore;
+
 
 namespace SQLInterpreter.Properties.FileCore
 {
@@ -17,6 +21,7 @@ namespace SQLInterpreter.Properties.FileCore
             EntryVirtualArray entryVirtualArray = new EntryVirtualArray(name);
             entryVirtualArray.Close();
         }
+        
 
         /// <summary>
         /// метод добавления новой строки в таблицу
@@ -62,6 +67,34 @@ namespace SQLInterpreter.Properties.FileCore
             
             entryVirtualArray.AppendEntry(newEntry);
             entryVirtualArray.Close();
+        }
+        private uint WriteToMemo(string filePath,string tableName)
+        {
+            FileInfo fileInfo = new FileInfo(filePath);
+            string textData;
+            filePath=filePath.TrimStart('@');
+            if (fileInfo.Length > 512)
+            {
+                throw new ArgumentException("Ошибка: Размер текстового файла превышает 512 байт.");
+            }
+            else
+            {
+                // Считываем содержимое текстового файла в буфер
+                try
+                {
+                    textData = File.ReadAllText(filePath, Encoding.UTF8);
+            
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException("Ошибка при чтении файла: " + ex.Message);
+                }
+            }
+
+            DbtFile dbtfile = new DbtFile(tableName+".dbt");
+            uint blockIndex = dbtfile.Header.NextFreeBlock;
+            dbtfile.AddData(Encoding.ASCII.GetBytes(textData));
+            return blockIndex;
         }
 
 
@@ -180,6 +213,23 @@ namespace SQLInterpreter.Properties.FileCore
             array.Close();
         }
 
+        public List<Entry> RunForArray(IActivity activity, LogicEntries logicEntries)
+        {
+            List<Entry> entries = new List<Entry>();
+            EntryVirtualArray array = new EntryVirtualArray(_name);
+            for (int i = 0; i < array.Header.Count; i++)
+            {
+                var entry = array[i];
+                if (logicEntries.GetResult(entry))
+                {
+                    activity.Do(entry);
+                    entries.Add(entry);
+                    array[i] = entry;
+                }
+            }
+            array.Close();
+            return entries;
+        }
 
         /// <summary>
         /// Возвращает записи подходящие под логическое выражение
