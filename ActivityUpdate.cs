@@ -13,6 +13,7 @@ namespace SQLInterpreter
         {
             _command = command;
         }
+
         public void Do(Entry entry)
         {
             for (int i = 0; i < _command.Count; i += 2)
@@ -29,7 +30,7 @@ namespace SQLInterpreter
 
         private bool CheckSize(string value, byte size, byte accuracy, char type)
         {
-            if (value.Length > size || (type == 'N' && value.Length - value.IndexOf('.') > accuracy)) return false;
+            if (value.Length > size || (type == 'N' && (value.IndexOf('.') != -1 && value.Length - value.IndexOf('.') > accuracy))) return false;
             return true;
         }
     }

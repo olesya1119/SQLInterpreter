@@ -58,7 +58,7 @@ namespace SQLInterpreter
 
             for (int i = 0; i < fields.Count; i++)
             {
-                fieldsNameFromTable.Add(fields[i].Name);
+                fieldsNameFromTable.Add(fields[i].Name.ToLower());
                 fieldsTypeFromTable.Add(fields[i].Type);
             }
 

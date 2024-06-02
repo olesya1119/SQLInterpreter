@@ -27,7 +27,7 @@ namespace SQLInterpreter
 
             List<Entry> entries = table.RunForArray(activity, parserWhere.GetResult());
 
-            return "Изменено " + entries.Count + "строк.\n"; //Результирующая строка
+            return "Изменено " + entries.Count + " строк.\n"; //Результирующая строка
 
         }
     }
