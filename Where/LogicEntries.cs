@@ -54,6 +54,8 @@ namespace SQLInterpreter
             List<string> fieldsNameFromTable = new List<string>() { };//Список имен полей
             List<char> fieldsTypeFromTable = new List<char>() { };  //Список типов этих полей соотственно
 
+
+
             for (int i = 0; i < fields.Count; i++)
             {
                 fieldsNameFromTable.Add(fields[i].Name);
@@ -62,24 +64,27 @@ namespace SQLInterpreter
 
             bool itsField = true;
             int index;
-            for (int i = 0; i < command.Count; i++){
-                //Если это не оператор
-                if (Array.IndexOf(operators, command[i]) == -1)
+            if (command.Count != 1) {
+                for (int i = 0; i < command.Count; i++)
                 {
-                    if (itsField)
+                    //Если это не оператор
+                    if (Array.IndexOf(operators, command[i]) == -1)
                     {
-                        index = Array.IndexOf(fieldsNameFromTable.ToArray(), command[i]);
-                        if (index == -1) throw new Exception("Нет такого поля");
-                        itsField = false;
-                        fieldIndex.Add(index);
-                        this.fieldTypes.Add(fieldsTypeFromTable[index]);
-                    }
-                    else
-                    {
-                        itsField = true;
+                        if (itsField)
+                        {
+                            index = Array.IndexOf(fieldsNameFromTable.ToArray(), command[i]);
+                            if (index == -1) throw new Exception("Нет такого поля " + command[i].ToString());
+                            itsField = false;
+                            fieldIndex.Add(index);
+                            fieldTypes.Add(fieldsTypeFromTable[index]);
+                        }
+                        else
+                        {
+                            itsField = true;
+                        }
                     }
                 }
-            } 
+            }
         }
 
         public bool GetResult(Entry entry)

@@ -28,9 +28,8 @@ namespace SQLInterpreter.Select
         public ParserSelect(string command, Table table) {
             this.table = table;
             activity = new ActivitySelect();
+            logicalExpression = "";
             Parse(command);
-            fieldsNameForReturn = new List<string>() { };
-            logicalExpression = string.Empty;
         }
 
         /// <summary>
@@ -40,12 +39,8 @@ namespace SQLInterpreter.Select
         /// <exception cref="Exception"></exception>
         private void Parse(string command)
         {     
+
             
-            //TODO: перенести в главные парсер
-            //Проверям наличие точки с запятой в выражении
-            if (command[command.Length - 1] != ';') throw new Exception("Синтаксическая ошибка. В конце запроса ожидалось ';'");
-
-
             bool fromIsFound = false; //Найдено ли ключевое слово FROM
             string fields = ""; //Значения полей (то что идет то from)
 

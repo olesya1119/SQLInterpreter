@@ -8,13 +8,13 @@ namespace SQLInterpreter.Properties.FileCore
 {
     public class DbtHeader
     {
-        private uint _nextFreeBlock=1; // Следующий пустой блок
+        private uint _nextFreeBlock; // Следующий пустой блок
         private List<DbtBlock> _blocks = new List<DbtBlock>(); // Массив блоков для хранения текста
         public uint NextFreeBlock { get => _nextFreeBlock; }
 
         public DbtHeader()
         {
-            _nextFreeBlock = 1;
+            _nextFreeBlock = 2;
         }
 
         public DbtHeader(uint nextFreeBlock)
@@ -24,7 +24,7 @@ namespace SQLInterpreter.Properties.FileCore
 
         public DbtHeader(byte[] data)
         {
-            _nextFreeBlock = 1;
+            _nextFreeBlock = 2;
             AddData(data);
         }
 
@@ -60,7 +60,7 @@ namespace SQLInterpreter.Properties.FileCore
         public byte[] GetBlockData(uint number)
         {
             if (number == 1) throw new ArgumentException("Нельзя получить текст с заголовока .dbt файла с помощью этого метода");
-            if (number >= _nextFreeBlock || number == 0) throw new ArgumentOutOfRangeException("Блока с таким номером не существует");
+            if (number >= _nextFreeBlock) throw new ArgumentOutOfRangeException("Блока с таким номером не существует");
             return _blocks[(int)number - 2].Data;
         }
 

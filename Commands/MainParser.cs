@@ -12,16 +12,22 @@ namespace SQLInterpreter.Commands
     {
         private Table currentTable = null;
         public void Parse(string str) {
+
             
+            //Проверям наличие точки с запятой в выражении
+            if (str[str.Length - 1] != ';') throw new ArgumentException("Синтаксическая ошибка. В конце запроса ожидалось ';'");
+
 
             int index = str.IndexOf(' ');
             string command = str.Substring(0, index);
             str = str.Remove(0,index+1);
 
+          
             if (command.Equals("OPEN"))
             {
                 try
                 {
+
                     OpenCommand openCommand = new OpenCommand();
                     currentTable = openCommand.Open(str);
                     Console.WriteLine("SQL>>Таблица {0} открыта",currentTable.Name);
@@ -60,6 +66,24 @@ namespace SQLInterpreter.Commands
                 DropCommand dropCommand = new DropCommand();
                 dropCommand.Drop(str);
             }
+
+            if (command.Equals("TRUNCATE"))
+            {
+                TruncateCommand truncateCommand = new TruncateCommand();
+                truncateCommand.Truncate(str);
+            }
+
+            if (command.Equals("DELETE"))
+            {
+                if (currentTable != null)
+                {
+                    ParserDelete parserDelete = new ParserDelete(str, currentTable);
+                    Console.WriteLine(parserDelete.GetResult());
+                }
+                else Console.WriteLine("Нет открытых таблиц.");
+            }
+
+
         }
 
     }

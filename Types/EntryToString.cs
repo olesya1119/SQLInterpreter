@@ -75,7 +75,7 @@ namespace SQLInterpreter.Types
                     //Если поле является MEMO
                     if (fields[indexs[j]].Type == 'M')
                     {
-                        dbtFile = new DbtFile(tableName);
+                        dbtFile = new DbtFile(tableName.Split('.')[0] + ".dbt");
                         //Считываем номер блока
                         for (int k = fields[indexs[j]].Offset; k < fields[indexs[j]].Offset + fields[indexs[j]].Size; k++)
                         {
@@ -123,7 +123,7 @@ namespace SQLInterpreter.Types
                     //Если поле является MEMO
                     if (fields[j].Type == 'M')
                     {
-                        dbtFile = new DbtFile(tableName); //TODO: ИСПРАВИТЬ ПУТЬ!
+                        dbtFile = new DbtFile(tableName.Split('.')[0] + ".dbt"); 
                         //Считываем номер блока
                         for (int k = fields[j].Offset; k < fields[j].Offset + fields[j].Size; k++)
                         {

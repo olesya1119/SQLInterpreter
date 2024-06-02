@@ -66,9 +66,7 @@ namespace SQLInterpreter
                 }
             }
 
-            if (s[s.Length - 1] != ';') throw new Exception("Синтаксическая ошибка");
-
-
+  
             if (whereIsFound == false) logicEntries = "True";
 
             string commandString = logicEntries;
