@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SQLInterpreter.Properties.FileCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,15 +9,14 @@ namespace SQLInterpreter.FileCore
 {
     internal class DbtBlock
     {
-        private static short blockSize = 512;
-        private byte[] _data = new byte[blockSize];
+        private byte[] _data = new byte[Constants.blockSize];
         public byte[] Data { get => _data; }
         public short Length
         { 
             get
             {
-                short len = (short)(blockSize - 1);
-                while (_data[len] == 0x0) len--;
+                short len = (short)(Constants.blockSize - 1);
+                while (_data[len] == 0x0 && len != 0) len--;
                 return len;
             }
         }

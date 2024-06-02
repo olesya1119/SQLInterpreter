@@ -14,48 +14,43 @@ namespace SQLInterpreter.Commands
         private EntryVirtualArray table;
         private DbfHeader header;
 
+        private string DeleteSpaces(string str)
+        {
+            return str.Trim();
+        }
+
+
         private (string,string[]) Parse(string sqlCommand)
         {
-            //string pattern = @"CREATE TABLE (\w+)\s*\(([^;]+)\);";
-            //Match match = Regex.Match(sqlCommand, pattern, RegexOptions.IgnoreCase);
+            //удаляем слово TABLE
+            int index = sqlCommand.IndexOf('E');
+            sqlCommand = sqlCommand.Substring(index + 1);
+            sqlCommand = sqlCommand.TrimStart();
 
-            //if (!match.Success)
-            //{
-            //    throw new ArgumentException("Неверная SQL команда");
-            //}
-
-            int index = sqlCommand.IndexOf(' ');
-            //string tableName = match.Groups[1].Value;
-            //string fieldsPart = match.Groups[2].Value;
+            index = sqlCommand.IndexOf(' ');
 
             //Разделить строку на две части
             string tableName = sqlCommand.Substring(0, index);
             string fieldsPart = sqlCommand.Substring(index + 1);
-            fieldsPart = fieldsPart.TrimEnd(';');
-            fieldsPart = fieldsPart.Trim('(', ')');
+            fieldsPart = fieldsPart.TrimEnd(';');//удаляем ; и скобки
+            fieldsPart = fieldsPart.TrimStart('(');
+            fieldsPart = fieldsPart.Remove(fieldsPart.Length-1);
 
-
-
-
+            //делимна отдельные аргументы
             string[] fields = fieldsPart.Split(new string[] { ", " }, StringSplitOptions.None);
-            //Console.WriteLine(tableName);
-            //foreach(var  field in fields)
-            //{
-            //    Console.WriteLine(field);
-            //}
             return (tableName, fields);
         }
 
 
         private DbfField ParseField(string field)
         {
-            //DbfField newField=new DbfField()
+            
             string name;
             char type;
             int offset = 0;
             byte size=0;
             byte accuracy=0;
-            var parts = field.Split(' ');
+            var parts = field.Split();
             name = parts[0];
             type = parts[1][0];
             if (!Constants.IsCorrectType(type))
@@ -104,8 +99,9 @@ namespace SQLInterpreter.Commands
  
         public void Create(string args)
         {
-            string tableName=Parse(args).Item1;
-            var fields = Parse(args).Item2;
+            var parts = Parse(args);
+            string tableName=parts.Item1;
+            var fields = parts.Item2;
             header = new DbfHeader();
            
             foreach(string field in fields)
