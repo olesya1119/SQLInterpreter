@@ -25,7 +25,19 @@ namespace SQLInterpreter.Properties.FileCore
         public DbtHeader(byte[] data)
         {
             _nextFreeBlock = 2;
-            AddData(data);
+            WriteAllData(data);
+        }
+
+        /// <summary>
+        /// Читает все данные из файла (data может быть > 512 байт)
+        /// </summary>
+        /// <param name="data">Текст, который нужно записать</param>
+        private void WriteAllData(byte[] data)
+        {
+            for (int i = 0; i < data.Length / Constants.blockSize + ((data.Length % Constants.blockSize > 0) ? 1 : 0); i++)
+            {
+                AddData(new ArraySegment<byte>(data, i * Constants.blockSize, i * Constants.blockSize + Constants.blockSize).ToArray());
+            }
         }
 
         /// <summary>
