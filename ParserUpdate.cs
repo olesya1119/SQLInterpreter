@@ -38,7 +38,8 @@ namespace SQLInterpreter
                 if (commandString.Substring(i, 5).ToLower() == " set ") setIndex = i + 5;
                 if (commandString.Substring(i, 7).ToLower() == " where ") whereIndex = i + 1;
             }
-            if (setIndex == -1 || whereIndex == -1) throw new Exception("set и/или where не найден(ы)");
+            if (setIndex == -1) throw new Exception("set не найден");
+            if (whereIndex == -1) whereIndex = commandString.Length;
             string buf = "";
             bool nowIsString = false, nowIsArgument = true;
             for (int i = setIndex; i < whereIndex; i++)
