@@ -104,8 +104,8 @@ namespace SQLInterpreter.Properties.FileCore
             else {
                  dbtfile = new DbtFile(dbtfilePath, null);
             }
-            uint blockIndex = dbtfile.Header.NextFreeBlock;
             dbtfile.AddData(Encoding.ASCII.GetBytes(textData));
+            uint blockIndex = dbtfile.Header.NextFreeBlock;
             dbtfile.Close();
             return blockIndex;
         }

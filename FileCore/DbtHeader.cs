@@ -36,6 +36,7 @@ namespace SQLInterpreter.Properties.FileCore
         {
             if (data.Length > Constants.blockSize) throw new ArgumentException($"Текст не может быть больше {Constants.blockSize} байт");
             _blocks.Add(new DbtBlock(data));
+            _nextFreeBlock++;
         }
 
         /// <summary>
@@ -45,10 +46,10 @@ namespace SQLInterpreter.Properties.FileCore
         /// <returns>Обновлённый DbtHeader</returns>
         public void RemoveBlock(uint number)
         {
-            if (number == 0) throw new ArgumentException("Нельзя удалить заголовок .dbt файла с помощью этого метода");
-            if (number >= _nextFreeBlock) throw new ArgumentOutOfRangeException("Блока с таким номером не существует");
+            if (number == 1) throw new ArgumentException("Нельзя удалить заголовок .dbt файла с помощью этого метода");
+            if (number >= _nextFreeBlock || number == 0) throw new ArgumentOutOfRangeException("Блока с таким номером не существует");
             _nextFreeBlock--;
-            _blocks.RemoveAt((int)number - 1);
+            _blocks.RemoveAt((int)number - 2);
         }
 
         /// <summary>
@@ -58,9 +59,9 @@ namespace SQLInterpreter.Properties.FileCore
         /// <returns>Текст данного блока</returns>
         public byte[] GetBlockData(uint number)
         {
-            if (number == 0) throw new ArgumentException("Нельзя получить текст с заголовока .dbt файла с помощью этого метода");
-            if (number >= _nextFreeBlock) throw new ArgumentOutOfRangeException("Блока с таким номером не существует");
-            return _blocks[(int)number - 1].Data;
+            if (number == 1) throw new ArgumentException("Нельзя получить текст с заголовока .dbt файла с помощью этого метода");
+            if (number >= _nextFreeBlock || number == 0) throw new ArgumentOutOfRangeException("Блока с таким номером не существует");
+            return _blocks[(int)number - 2].Data;
         }
 
         /// <summary>
@@ -70,11 +71,11 @@ namespace SQLInterpreter.Properties.FileCore
         /// <param name="number">Номер нужного блока (нумерация начинается с 1)</param>
         public void UpdateBlock(byte[] data, uint number)
         {
-            if (number == 0) throw new ArgumentException("Нельзя редактировать заголовок .dbt файла с помощью этого метода");
-            if (number >= _nextFreeBlock) throw new ArgumentException("Этот блок ещё не записан, и его нельзя редактировать");
+            if (number == 1) throw new ArgumentException("Нельзя редактировать заголовок .dbt файла с помощью этого метода");
+            if (number >= _nextFreeBlock || number == 0) throw new ArgumentException("Этот блок ещё не записан, и его нельзя редактировать");
             if (data.Length > Constants.blockSize) throw new ArgumentException($"Текст не может быть больше {Constants.blockSize} байт");
-            _blocks.RemoveAt((int)number - 1);
-            _blocks.Insert((int)number - 1, new DbtBlock(data));
+            _blocks.RemoveAt((int)number - 2);
+            _blocks.Insert((int)number - 2, new DbtBlock(data));
         }
 
         public byte[] GetByte()
@@ -83,7 +84,7 @@ namespace SQLInterpreter.Properties.FileCore
             int offset = 0;
             foreach (var block in _blocks)
             {
-                Buffer.BlockCopy(block.Data, 0, data, offset, block.Length + 1);
+                Buffer.BlockCopy(block.Data, 0, data, offset, Constants.blockSize);
                 offset += Constants.blockSize;
             }
             return data;
