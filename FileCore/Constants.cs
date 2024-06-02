@@ -33,15 +33,8 @@ namespace SQLInterpreter.Properties.FileCore
                     if (value.StartsWith("\"") && value.EndsWith("\"")) return true;
                     break;
                 case 'D':
-                    try
-                    {
-                        Date d = new Date(value);
-                        return true;
-                    }
-                    catch (Exception e)
-                    {
-                        return false;
-                    }
+                    Date d = new Date(value);
+                    return true;
                 case 'N':
                     if (value.Contains(".") && value.IndexOf('.') != value.LastIndexOf('.')) return false;
                     if (value.StartsWith("-") && value.LastIndexOf('-') != 0) return false;
