@@ -212,7 +212,7 @@ namespace SQLInterpreter.Select
                 {
                     for (int k = 0; k < columnWidths.Length; k++) //Перебираем столбы
                     {
-                        cell = table[i][k].Split('\n').ToList();
+                        cell = table[i][k].Split(new char[] { '\n', '\r' }).ToList();
                         while (cell.Count < rowHeight[i]) cell.Add("");
 
                         result += "|" + cell[j] + new string(' ', columnWidths[k] - cell[j].Length + 2);
