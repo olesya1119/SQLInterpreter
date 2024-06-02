@@ -258,8 +258,6 @@ namespace SQLInterpreter
         private int Comparison(string a, string b)
         {
             int index = 0;
-            if (a[0] == '\"') { a.Trim('\"'); }
-            if (b[0] == '\"') { b.Trim('\"'); }
 
             while (a[index] == b[index]) { index++; }
 

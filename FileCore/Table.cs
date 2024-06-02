@@ -15,12 +15,15 @@ namespace SQLInterpreter.Properties.FileCore
     {
         private string _name;
 
+        public string Name {  get { return _name; } }
+
         public Table(string name)
         {
             _name = name;
             EntryVirtualArray entryVirtualArray = new EntryVirtualArray(name);
             entryVirtualArray.Close();
         }
+
         
 
         /// <summary>

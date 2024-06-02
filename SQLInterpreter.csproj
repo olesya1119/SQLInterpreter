@@ -69,6 +69,7 @@
     <Compile Include="ParserRestore.cs" />
     <Compile Include="ParserSelect.cs" />
     <Compile Include="ParserUpdate.cs" />
+    <Compile Include="Types\EntryToString.cs" />
     <Compile Include="UpdateActivity.cs" />
     <Compile Include="Where\LogicEntries.cs" />
     <Compile Include="Where\ParserWhere.cs" />

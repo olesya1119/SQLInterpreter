@@ -1,4 +1,5 @@
 ﻿using SQLInterpreter.Properties.FileCore;
+using SQLInterpreter.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,133 +11,90 @@ namespace SQLInterpreter.Select
 {
     public class ParserSelect
     {
-        private string command;
         private Table table;
         private IActivity activity;
 
-        private List<string> fieldsName;
+        /// <summary>Названия полей, которые нужно вывести в таблицу</summary>
+        private List<string> fieldsNameForReturn;
 
+        /// <summary>Логическое выражение для WHERE</summary>
+        private string logicalExpression;
 
+        /// <summary>
+        /// Создание экземпляра парсера SELECT
+        /// </summary>
+        /// <param name="command">Запрос без ключевого слова SELECT</param>
+        /// <param name="table">Таблица, в которой нужно искать значения</param>
         public ParserSelect(string command, Table table) {
-            this.command = command;
             this.table = table;
             activity = new ActivitySelect();
-
-            Parse();
+            Parse(command);
+            fieldsNameForReturn = new List<string>() { };
+            logicalExpression = string.Empty;
         }
 
-        private void Parse()
-        {
-            bool fromIsFound = false;
-            string field = "", logicEntries = "";
+        /// <summary>
+        /// Парсер команды SELECT. Разделяет входящий запрос на значния возращаемых полей и логическое выражение WHERE
+        /// </summary>
+        /// <param name="command">Запрос без ключевого слова SELECT</param>
+        /// <exception cref="Exception"></exception>
+        private void Parse(string command)
+        {     
+            
+            //TODO: перенести в главные парсер
+            //Проверям наличие точки с запятой в выражении
+            if (command[command.Length - 1] != ';') throw new Exception("Синтаксическая ошибка. В конце запроса ожидалось ';'");
+
+
+            bool fromIsFound = false; //Найдено ли ключевое слово FROM
+            string fields = ""; //Значения полей (то что идет то from)
 
             //Отделили часть с названием полей от логического запроса
             for (int i = 0; i < command.Length - 6; i++)
             {
-
                 if (fromIsFound)
-                    logicEntries += command[i + 5].ToString();
+                    logicalExpression += command[i + 5].ToString();
 
                 else
                 {
                     if (command.Substring(i, 6).ToLower() == " from ") fromIsFound = true;
-                    field += command[i].ToString();
+                    fields += command[i].ToString();
                 }
             }
 
-            logicEntries += command[command.Length - 1];
+            if (!fromIsFound) throw new Exception("Синтаксическая ошибка. Не найдено ключевое слово FROM в запросе.");
+
 
             //Разделяем названия полей на строковый список
-            fieldsName = field.Split(new char[] { ',', ' ' }).ToList();
-            command = logicEntries;
+            fieldsNameForReturn = fields.Split(new char[] { ',', ' ' }).ToList();
+
+            //Удаляем пустые элементы, если такие есть
+            while (fieldsNameForReturn.Remove("")) ;
         }
 
+
+        /// <summary>
+        /// Вычисление результаты запроса SELECT
+        /// </summary>
+        /// <returns>Таблица для вывода</returns>
         public string GetResult()
         {
-            ParserWhere parserWhere = new ParserWhere(table, command);
+            ParserWhere parserWhere = new ParserWhere(table, logicalExpression);
             LogicEntries logicEntries = parserWhere.GetResult();
             List<Entry> entries = table.RunForArray(activity, logicEntries);
 
-            List<List<string>> selectedEntries = Select(entries, fieldsName);
+            List<List<string>> selectedEntries = Select(entries, fieldsNameForReturn);
             return GetResultString(selectedEntries); //Результирующая строка
-
         }
-        /*
-        private string GetResultString(List<List<string>> table)
-        {
-            string s = "";
 
-            for (int i = 0; i < table.Count; i++)
-            {
-                for (int j = 0; j < table[i].Count; j++)
-                    s += table[i][j].ToString() + " ";
-            }
-            s += "\n";
-            return s;
-        }*/
-
-        
-        private string GetResultString(List<List<string>> table) {
-            string result = "";
-
-            // Ширина каждой колонки таблицы
-            int[] columnWidths = new int[table[0].Count];
-
-            // Вычисление максимальной ширины для каждой колонки
-            for (int i = 0; i < table[0].Count; i++)
-            {
-                foreach (List<string> row in table)
-                {
-                    if (row[i].Length > columnWidths[i])
-                    {
-                        columnWidths[i] = row[i].Length;
-                    }
-                }
-            }
-
-            // Вывод заголовка таблицы
-            foreach (string column in table[0])
-            {
-                result += "| ";
-                result += column.PadRight(columnWidths[table[0].IndexOf(column)]);
-                result += " ";
-            }
-            result += "|\n";
-
-            // Вывод разделителя
-            for (int i = 0; i < table[0].Count; i++)
-            {
-                result += "+";
-                result += new string('-', columnWidths[i] + 2);
-            }
-            result += "+\n";
-
-            // Вывод данных
-            for (int i = 1; i < table.Count; i++)
-            {
-                foreach (string column in table[i])
-                {
-                    result += "| ";
-                    result += column.PadRight(columnWidths[table[i].IndexOf(column)]);
-                    result += " ";
-                }
-                result += "|\n"; 
-            }
-
-            // Вывод разделителя
-            for (int i = 0; i < table[0].Count; i++)
-            {
-                result += "+";
-                result += new string('-', columnWidths[i] + 2);
-            }
-            result += "+\n";
-
-            return result;
-        }
-        
-
-
-        public List<List<string>> Select(List<Entry> entries, List<string> fieldsName)
+        /// <summary>
+        /// Выбирает и возвращает только нужные значения
+        /// </summary>
+        /// <param name="entries"></param>
+        /// <param name="fieldsName"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private List<List<string>> Select(List<Entry> entries, List<string> fieldsName)
         {
 
             List<DbfField> fields = entries[0].Header.Fields; //Список полей
@@ -160,10 +118,12 @@ namespace SQLInterpreter.Select
                 stringEntries.Add(fieldsNameString);
 
 
-                //Добавляем сами записи
-                for (int i = 0; i < entries.Count; i++)
+                //Теперь добавим сами записи
+                List<List<string>> entriesMatrix = EntryToString.EntryListToStringMatrix(entries, table.Name);
+
+                for (int i = 0; i < entriesMatrix.Count; i++)
                 {
-                    stringEntries.Add(EntryToStringList(entries[i]));
+                    stringEntries.Add(entriesMatrix[i]);
                 }
             }
 
@@ -181,59 +141,101 @@ namespace SQLInterpreter.Select
                     stringEntries[0].Add(fieldsName[i]);
                 }
 
+                //Теперь добавим сами записи
+                List<List<string>> entriesMatrix = EntryToString.EntryListToStringMatrix(entries, table.Name, indexs);
 
-                //Добавляем сами записи
-                for (int i = 0; i < entries.Count; i++)
+                for (int i = 0; i < entriesMatrix.Count; i++)
                 {
-                    stringEntries.Add(EntryToStringList(entries[i], indexs));
+                    stringEntries.Add(entriesMatrix[i]);
                 }
+
+
             }
             return stringEntries;
         }
 
 
-        /// <summary>
-        /// Перевод запись в строковый спискок и возращает только элементы указанные в списке индексов
-        /// </summary>
-        public List<string> EntryToStringList(Entry entry, List<int> indexs)
-        {
-            List<string> entryList = new List<string>() { };
-            List<DbfField> fields = entry.Header.Fields; //Список полей
-            List<byte> data = new List<byte> { };
 
 
-            for (int i = 0; i < indexs.Count; i++)
-            {
-                for (int j = fields[indexs[i]].Offset; j < fields[indexs[i]].Offset + fields[indexs[i]].Size; j++)
-                {
-                    data.Add(entry.GetByte()[j]);
-                }
-                entryList.Add(Encoding.ASCII.GetString(data.ToArray()).Split('\0')[0]);
-                data.Clear();
-            }
-            return entryList;
-        }
 
         /// <summary>
-        /// Перевод запись в строковый спискок
+        /// Красивый вывод таблицы
         /// </summary>
-        private List<string> EntryToStringList(Entry entry)
+        /// <param name="table"></param>
+        /// <returns></returns>
+        private string GetResultString(List<List<string>> table)
         {
-            List<string> entryList = new List<string>() { };
-            List<DbfField> fields = entry.Header.Fields; //Список полей
-            List<byte> data = new List<byte> { };
+            string result = "";
 
+            // Ширина каждой колонки таблицы
+            int[] columnWidths = new int[table[0].Count];
 
-            for (int i = 0; i < fields.Count; i++)
+            //Высота строк
+            int[] rowHeight = new int[table.Count];
+
+            // Вычисление максимальной ширины для каждой колонки
+            for (int i = 0; i < table[0].Count; i++)
             {
-                for (int j = fields[i].Offset; j < fields[i].Offset + fields[i].Size; j++)
+                foreach (List<string> row in table)
                 {
-                    data.Add(entry.GetByte()[j]);
+                    if (row[i].Length > columnWidths[i])
+                    {
+                        columnWidths[i] = row[i].Length;
+                    }
+                    if (row[i].Length > 15)
+                    {
+                        columnWidths[i] = 15;
+                    }
                 }
-                entryList.Add(Encoding.ASCII.GetString(data.ToArray()));
-                data.Clear();
             }
-            return entryList;
+
+            //Вычисление высоты каждой строки
+            for (int i = 0; i < table.Count; i++)
+            {
+                for (int j = 0; j < table[i].Count; j++)
+                {
+                    if (table[i][j].Length > 15)
+                    {
+                        //Добавим в строку переносы строк
+                        for (int k = 15; k < table[i][j].Length; k += 15)
+                        {
+                            table[i][j] = table[i][j].Insert(k, "\n");
+                        }
+                    }
+                    rowHeight[i] = Math.Max(table[i][j].Length / 15 + 1, rowHeight[i]);
+                }
+            }
+
+            // Вывод разделителя
+            for (int i = 0; i < table[0].Count; i++) result += "+" + new string('-', columnWidths[i] + 2);
+            result += "+\n";
+
+            List<string> cell;
+            for (int i = 0; i < rowHeight.Length; i++) //Перебираем строки
+            {
+                for (int j = 0; j < rowHeight[i]; j++) //Перебираем высоты строк
+                {
+                    for (int k = 0; k < columnWidths.Length; k++) //Перебираем столбы
+                    {
+                        cell = table[i][k].Split('\n').ToList();
+                        while (cell.Count < rowHeight[i]) cell.Add("");
+
+                        result += "|" + cell[j] + new string(' ', columnWidths[k] - cell[j].Length + 2);
+                    }
+                    result += "|\n";
+                }
+
+
+
+                // Вывод разделителя
+                for (int j = 0; j < table[0].Count; j++) result += "+" + new string('-', columnWidths[j] + 2);
+                result += "+\n";
+            }
+
+            return result;
+
+
         }
+        
     }
 }
