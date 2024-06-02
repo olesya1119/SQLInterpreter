@@ -17,7 +17,7 @@ namespace SQLInterpreter.Properties.FileCore
         public Entry this[int index]
         {
             get => ReadEntry(index);
-            set => WriteEntry(index,value);
+            set => WriteEntry(index, value);
         }
 
         public DbfHeader Header => _header;
@@ -36,7 +36,7 @@ namespace SQLInterpreter.Properties.FileCore
         /// <param name="header">заголовок файла, при header=null создаться файл с заголовком без полей </param>
         public EntryVirtualArray(string path, DbfHeader header)
         {
-            Create(path,header);
+            Create(path, header);
         }
         /// <summary>
         /// открывает файл по указанному пути
@@ -94,7 +94,7 @@ namespace SQLInterpreter.Properties.FileCore
         {
             _stream.Seek(0, SeekOrigin.Begin);
             var header = _header.GetByte();
-            _stream.Write(header,0,header.Length);
+            _stream.Write(header, 0, header.Length);
         }
         /// <summary>
         /// записывает запись в файл по заданному индексу
@@ -134,7 +134,7 @@ namespace SQLInterpreter.Properties.FileCore
             {
                 if (i.Name == fieldName)
                 {
-                    long offset = FindOffset(index)+i.Offset;
+                    long offset = FindOffset(index) + i.Offset;
                     _stream.Seek(offset, SeekOrigin.Begin);
                     var buf = new byte[i.Size];
                     _stream.Read(buf, 0, buf.Length);
@@ -157,7 +157,7 @@ namespace SQLInterpreter.Properties.FileCore
             {
                 var buf = new byte[1];
                 buf[0] = entryStatus;
-                _stream.Write(buf,0,buf.Length);
+                _stream.Write(buf, 0, buf.Length);
             }
             else throw new ArgumentException("Wrong entry status");
         }
@@ -178,7 +178,7 @@ namespace SQLInterpreter.Properties.FileCore
         private long FindOffset(int index)
         {
             if (index < 0 || index >= _header.Count) throw new IndexOutOfRangeException("index bigger then max");
-            return Constants.headerSize + index * _header.EntrySize;
+            return _header.HeaderSize + index * _header.EntrySize;
         }
         /// <summary>
         /// для удаления ненужных данных из конца файла
@@ -195,10 +195,10 @@ namespace SQLInterpreter.Properties.FileCore
         /// <param name="entry">запись</param>
         public void AppendEntry(Entry entry)
         {
-            long offset = (_header.Count!=0)?FindOffset(_header.Count-1)+_header.EntrySize:Constants.headerSize;
+            long offset = (_header.Count != 0) ? FindOffset(_header.Count - 1) + _header.EntrySize : _header.HeaderSize;
             _stream.Seek(offset, SeekOrigin.Begin);
             var e = entry.GetByte();
-            _stream.Write(e,0,e.Length);
+            _stream.Write(e, 0, e.Length);
             _header.Count += 1;
             _header.Date = DateTime.Now;
             WriteHeader();
