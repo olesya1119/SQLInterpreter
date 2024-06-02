@@ -133,6 +133,7 @@ namespace SQLInterpreter.Types
 
                         entryList[i].Add(Encoding.ASCII.GetString(dbtFile.GetBlockData(numberBlock)).Split('\0')[0]);
 
+                        dbtFile.Close();
                     }
 
                     //Если поле не МЕМО

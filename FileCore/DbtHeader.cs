@@ -34,11 +34,13 @@ namespace SQLInterpreter.Properties.FileCore
         /// <param name="data">Текст, который нужно записать</param>
         private void WriteAllData(byte[] data)
         {
-            for (int i = 0; i < data.Length / Constants.blockSize + ((data.Length % Constants.blockSize > 0) ? 1 : 0); i++)
+            int lastLen = data.Length % Constants.blockSize, len = data.Length / Constants.blockSize + ((lastLen > 0) ? 1 : 0);
+            for (int i = 0; i < len; i++)
             {
-                AddData(new ArraySegment<byte>(data, i * Constants.blockSize, i * Constants.blockSize + Constants.blockSize).ToArray());
+                AddData(new ArraySegment<byte>(data, i * Constants.blockSize, i + 1 == len ? lastLen : Constants.blockSize).ToArray());
             }
         }
+    
 
         /// <summary>
         /// Добавляет текст, разделяя его по блокам
