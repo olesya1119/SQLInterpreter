@@ -116,7 +116,6 @@ namespace SQLInterpreter.Properties.FileCore
                
                 Buffer.BlockCopy( Encoding.ASCII.GetBytes(data), 0, newData.GetByte(), newField.Offset, size);
             }else
-
             if(oldField.Type == 'N' && newField.Type == 'L') // Целое/вещественное => boolean
             {
                 byte size = (newField.Size < oldField.Size) ? newField.Size : oldField.Size;
@@ -127,11 +126,22 @@ namespace SQLInterpreter.Properties.FileCore
 
                 Buffer.BlockCopy(new byte[] { (byte)data[0] }, 0, newData.GetByte(), newField.Offset, size);
             }
-
-            else
+            else if(oldField.Type == 'N' && newField.Type == 'C')
             {
-                    byte size = (newField.Size < oldField.Size) ? newField.Size : oldField.Size;
-                    Buffer.BlockCopy(oldData.GetByte(), oldField.Offset, newData.GetByte(), newField.Offset, size);
+                byte size = (newField.Size < oldField.Size) ? newField.Size : oldField.Size;
+                Buffer.BlockCopy(oldData.GetByte(), oldField.Offset, newData.GetByte(), newField.Offset, size);
+            }
+            else if (oldField.Type == newField.Type && oldField.Accuracy == newField.Accuracy) // нет привидения типа
+            {
+                byte size = (newField.Size < oldField.Size) ? newField.Size : oldField.Size;
+                Buffer.BlockCopy(oldData.GetByte(), oldField.Offset, newData.GetByte(), newField.Offset, size);
+            }
+
+            else//неправильное привидение типа
+            {
+                 byte size = (newField.Size < oldField.Size) ? newField.Size : oldField.Size;
+                 string data = new string('\0', size);
+                 Buffer.BlockCopy(Encoding.ASCII.GetBytes(data), 0, newData.GetByte(), newField.Offset, size);
             }
         }
 

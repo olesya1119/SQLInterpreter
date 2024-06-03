@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SQLInterpreter.Parsers;
+using SQLInterpreter.Properties.FileCore;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,9 +11,11 @@ namespace SQLInterpreter.Commands
 {
     internal class DropCommand
     {
-        public void Drop(string tableName)
+        public string GetResult(string args)
         {
+            string tableName = args.Remove(0,args.IndexOf("TABLE", StringComparison.OrdinalIgnoreCase)+5);
             tableName = tableName.TrimEnd(';');
+            tableName = tableName.Trim();
             if (File.Exists(tableName + ".dbt"))
             {
                 File.Delete(tableName + ".dbt");
@@ -23,7 +27,7 @@ namespace SQLInterpreter.Commands
             }
             else throw new ArgumentException("Нет такой таблицы (файла)");
 
-            
+            return "Файлы успешно удалены.";
         }
     }
 }

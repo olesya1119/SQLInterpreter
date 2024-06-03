@@ -26,7 +26,7 @@ namespace SQLInterpreter.Commands
             if (command.Equals("alter"))
             {
                 AlterCommand alterCommand = new AlterCommand();
-                alterCommand.Parse(str);
+                alterCommand.GetResult(currentTable,str);
             }
           
             if (command.Equals("open"))
@@ -67,18 +67,18 @@ namespace SQLInterpreter.Commands
             if (command.Equals("insert"))
             {
                 InsertCommand insertCommand = new InsertCommand();
-                insertCommand.Insert(str);
+                insertCommand.GetResult(currentTable,str);
             }
             if (command.Equals("drop"))
             {
                 DropCommand dropCommand = new DropCommand();
-                dropCommand.Drop(str);
+                dropCommand.GetResult(str);
             }
 
             if (command.Equals("truncate"))
             {
                 TruncateCommand truncateCommand = new TruncateCommand();
-                truncateCommand.Truncate(str);
+                truncateCommand.GetResult(currentTable,str);
             }
 
             if (command.Equals("delete"))

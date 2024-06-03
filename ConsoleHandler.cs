@@ -28,9 +28,9 @@ namespace SQLInterpreter
                     Console.Write("SQL>>");
                     var str = Console.ReadLine();
                     mainParser.Parse(str);
-                }catch(Exception e)
+                }catch(Exception ex)
                 {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine(ex.Message);
                 }
             }
         }         

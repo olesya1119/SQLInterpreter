@@ -72,6 +72,10 @@ namespace SQLInterpreter.Types
             // Заполняем оставшиеся символы '\0' до нужной длины
             if (numberString.Length < length)
             {
+                if (accuracy > 0) { 
+                    numberString += '.';
+                    for(int i=0; i< accuracy; i++) numberString += '0';
+                }
                 numberString = numberString.PadRight(length, '\0');
             }
 
