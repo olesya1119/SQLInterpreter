@@ -93,7 +93,7 @@ namespace SQLInterpreter.Select
         /// <exception cref="Exception"></exception>
         private List<List<string>> Select(List<Entry> entries, List<string> fieldsName)
         {
-
+            if (entries.Count == 0) return new List<List<string>> { };
             List<DbfField> fields = entries[0].Header.Fields; //Список полей
             List<int> indexs = new List<int>() { };
             int index;
@@ -162,6 +162,7 @@ namespace SQLInterpreter.Select
         /// <returns></returns>
         private string GetResultString(List<List<string>> table)
         {
+            if (table.Count == 0) return "";
             string result = "\n";
 
             // Ширина каждой колонки таблицы

@@ -31,7 +31,7 @@ namespace SQLInterpreter
             ParserWhere parserWhere = new ParserWhere(table, args);
             LogicEntries logicEntries = parserWhere.GetResult();
 
-            return "Изменено " + table.RunForArray(_activity, logicEntries) + "строк.\n"; //Результирующая строка
+            return "Изменено " + table.RunForArray(_activity, logicEntries) + "строк."; //Результирующая строка
         }
     }
 }
