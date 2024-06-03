@@ -1,4 +1,5 @@
-﻿using SQLInterpreter.Properties.FileCore;
+﻿using SQLInterpreter.Parsers;
+using SQLInterpreter.Properties.FileCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SQLInterpreter.Commands
 {
-    internal class AlterCommand
+    internal class AlterCommand: IParser
     {
         private string tableName;
 
@@ -54,58 +55,57 @@ namespace SQLInterpreter.Commands
 
 
 
-        public void Parse(string args, Table table = null)
+        public string GetResult(Table table, string args)
         {
-            if (table == null) {
-                int index = args.IndexOf('E');
-                args = args.Substring(index + 1);
-                args = args.TrimStart();
 
-                index = args.IndexOf(' ');
+            //int index = args.IndexOf('E');
+            //args = args.Substring(index + 1);
+            //args = args.TrimStart();
 
-                //Разделить строку на две части
-                tableName = args.Substring(0, index);
-                args = args.Remove(0, index);
-                args=args.TrimStart();
+            //index = args.IndexOf(' ');
 
-            }
-            else
-            {
-                tableName = table.Name;
-            }
+            ////Разделить строку на две части
+            //tableName = args.Substring(0, index);
+            //args = args.Remove(0, index);
+            //args=args.TrimStart();
+
+            if (table == null) throw new ArgumentNullException("Нет открытых таблиц.");
+            tableName = table.Name;
+            tableName = tableName.Split('.')[0];
+            
 
             //удаляем слово COLUMN
-            int indexOfN = args.IndexOf('N');
-            args = args.Remove(0, indexOfN+1);
+            int indexOfN = args.IndexOf("COLUMN", StringComparison.OrdinalIgnoreCase);
+            args = args.Remove(0, indexOfN+7);
             args = args.Trim();
 
             int indexOfFirstSpace = args.IndexOf(' ');
             string commandName = args.Substring(0, indexOfFirstSpace);
+            commandName = commandName.ToLower();
 
            
             string field = args.Substring(indexOfFirstSpace + 1);
 
-            if (commandName == "ADD") {
+            if (commandName == "add") {
                 AddColumn(field);
             }
 
-            if(commandName == "REMOVE")
+            if(commandName == "remove")
             {
                 RemoveColumn(field);
             }
 
-            if(commandName == "RENAME")
+            if(commandName == "rename")
             {
                 RenameColumn(field);
             }
 
-            if (commandName == "UPDATE")
+            if (commandName == "update")
             {
                 UpdateColumn(field);
             }
 
-
-
+            return "SQL>> Команда ALTER " + commandName.ToUpper() + "успешно выполнена";
 
         }
     }

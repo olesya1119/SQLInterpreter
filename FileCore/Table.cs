@@ -73,10 +73,9 @@ namespace SQLInterpreter.Properties.FileCore
                             if (!NumberStringCheck.IsValidNumberString(fieldData[i], currfield.Size, currfield.Accuracy))
                             {
                                 throw new ArgumentException("Неверный формат данных числового поля");
-
-
                             }
                         }
+                        fieldData[i]=NumberStringCheck.FormatString(fieldData[i], currfield.Size, currfield.Accuracy);
                         newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes(fieldData[i]));
                     }
                     else

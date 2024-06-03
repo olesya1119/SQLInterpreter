@@ -1,4 +1,5 @@
-﻿using SQLInterpreter.Properties.FileCore;
+﻿using SQLInterpreter.Parsers;
+using SQLInterpreter.Properties.FileCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SQLInterpreter.Commands
 {
-    internal class InsertCommand
+    internal class InsertCommand: IParser
     {
         
         private (string, string[], string[]) Parse(string args)
@@ -40,18 +41,22 @@ namespace SQLInterpreter.Commands
             return (tableName, fieldsArgs, valuesArgs);
 
         }
-        public void Insert(string args)
+        public string GetResult(Table table,string args)
         {
+            if (table == null) throw new ArgumentNullException("Нет открытых таблиц");
             var entryArgs = Parse(args);
-            string tableName = entryArgs.Item1;
-            Table table = new Table(tableName+".dbf");
+            string tableName = table.Name;
+            //Table table = new Table(tableName+".dbf");
             try
             {
                 table.AddEntry(entryArgs.Item2, entryArgs.Item3);
-            }catch(Exception ex)
+                return "Добавлена одна строка в таблицу "+ tableName;
+            }
+            catch(Exception ex)
             {
                 throw new ArgumentException(ex.Message);
             }
+           
            
         }
     }

@@ -1,4 +1,5 @@
-﻿using SQLInterpreter.Properties.FileCore;
+﻿using SQLInterpreter.Parsers;
+using SQLInterpreter.Properties.FileCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,15 +8,17 @@ using System.Threading.Tasks;
 
 namespace SQLInterpreter.Commands
 {
-    internal class TruncateCommand
+    internal class TruncateCommand: IParser
     {
-        public void Truncate(string tableName)
+        public string GetResult(Table table,string args)
         {
+            if (table == null) throw new ArgumentNullException("Нет открытых таблиц");
             try
-            {
-                tableName = tableName.TrimEnd(';');
-                Table table = new Table(tableName + ".dbf");
+            {  
+                //tableName = tableName.TrimEnd(';');
+                //Table table = new Table(tableName + ".dbf");
                 table.Truncate();
+                return "SQL>> Строки успешно удалены.";
                 
             }catch(Exception ex)
             {
