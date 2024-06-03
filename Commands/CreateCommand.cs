@@ -103,7 +103,7 @@ namespace SQLInterpreter.Commands
 
         }
  
-        public void Create(string args)
+        public string GetResult(string args)
         {
             var parts = Parse(args);
             string tableName=parts.Item1;
@@ -122,6 +122,7 @@ namespace SQLInterpreter.Commands
             {
                 EntryVirtualArray table = new EntryVirtualArray(tableName + ".dbf", header);
                 table.Close();
+                return "Таблица " + tableName + ".dbf успешно создана.";
             }
             
         }

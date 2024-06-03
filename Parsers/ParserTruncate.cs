@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SQLInterpreter.Commands
 {
-    internal class TruncateCommand: IParser
+    internal class ParserTruncate: IParser
     {
         public string GetResult(Table table,string args)
         {

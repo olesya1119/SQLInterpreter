@@ -20,7 +20,8 @@ namespace SQLInterpreter
             {
                 Console.Write("SQL>>");
                 string request = "";
-                while (request.IndexOf(';') != -1) request += Console.ReadLine() + " ";
+                while (request.IndexOf(';') == -1 || request == string.Empty) { request += Console.ReadLine(); }
+
                 request = request.Trim();
                 if (request[request.Length - 1] != ';')
                 {
@@ -30,7 +31,7 @@ namespace SQLInterpreter
 
                 try
                 {
-                    Console.WriteLine("SQL >>" + mainParser.Parse(request));
+                    Console.WriteLine("SQL>>" + mainParser.Parse(request));
                 }
                 catch (Exception e)
                 {
@@ -40,7 +41,7 @@ namespace SQLInterpreter
             }
 
         }
-        }         
-    }
+    }         
 }
+
 

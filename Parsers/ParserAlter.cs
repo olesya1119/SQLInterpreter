@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SQLInterpreter.Commands
 {
-    internal class AlterCommand: IParser
+    internal class ParserAlter: IParser
     {
         private string tableName;
 
@@ -18,7 +18,12 @@ namespace SQLInterpreter.Commands
             args = args.TrimEnd(';');
             args = args.Trim();
             Table table = new Table(tableName + ".dbf");
+            try { 
             table.RemoveColumn(args);
+            }
+            catch {
+                throw new Exception("Поле с именем " + args + " не найдено.");
+            }
 
         }
 
@@ -86,6 +91,7 @@ namespace SQLInterpreter.Commands
            
             string field = args.Substring(indexOfFirstSpace + 1);
 
+
             if (commandName == "add") {
                 AddColumn(field);
             }
@@ -105,7 +111,7 @@ namespace SQLInterpreter.Commands
                 UpdateColumn(field);
             }
 
-            return "SQL>> Команда ALTER " + commandName.ToUpper() + "успешно выполнена";
+            return "Команда ALTER " + commandName.ToUpper() + " успешно выполнена";
 
         }
     }

@@ -16,7 +16,7 @@ namespace SQLInterpreter.Commands
                 tableName = tableName.TrimEnd(';');
                 return new Table(tableName+".dbf");
 
-            }catch (Exception ex)
+            }catch 
             {
                 throw new ArgumentException("Не удалось открыть таблицу");
             }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SQLInterpreter.Commands
 {
-    internal class InsertCommand: IParser
+    internal class ParserInsert: IParser
     {
         
         private (string, string[], string[]) Parse(string args)

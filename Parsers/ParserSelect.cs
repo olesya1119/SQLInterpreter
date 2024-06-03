@@ -162,7 +162,7 @@ namespace SQLInterpreter.Select
         /// <returns></returns>
         private string GetResultString(List<List<string>> table)
         {
-            string result = "";
+            string result = "\n";
 
             // Ширина каждой колонки таблицы
             int[] columnWidths = new int[table[0].Count];
