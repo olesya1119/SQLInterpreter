@@ -15,24 +15,31 @@ namespace SQLInterpreter
     {
         public ConsoleHandler() {
 
-            CreateCommand createCommand = new CreateCommand();
-            OpenCommand openCommand = new OpenCommand();
-            InsertCommand insertCommand = new InsertCommand();
-            DropCommand dropCommand = new DropCommand();
             MainParser mainParser = new MainParser();
             while (true)
             {
+                Console.Write("SQL>>");
+                string request = "";
+                while (request.IndexOf(';') != -1) request += Console.ReadLine() + " ";
+                request = request.Trim();
+                if (request[request.Length - 1] != ';')
+                {
+                    Console.WriteLine("SQL>>" + "После ; обнаруженены символы - \"" + request.Substring(request.IndexOf(';') + 1) + "\"");
+                    continue;
+                }
 
                 try
                 {
-                    Console.Write("SQL>>");
-                    var str = Console.ReadLine();
-                    mainParser.Parse(str);
-                }catch(Exception e)
-                {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine("SQL >>" + mainParser.Parse(request));
                 }
+                catch (Exception e)
+                {
+                    Console.WriteLine("SQL>>" + e.Message);
+                }
+
             }
+
+        }
         }         
     }
 }

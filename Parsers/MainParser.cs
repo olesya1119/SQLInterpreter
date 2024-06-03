@@ -1,28 +1,72 @@
-﻿using SQLInterpreter.Properties.FileCore;
+﻿using SQLInterpreter.Parsers;
+using SQLInterpreter.Properties.FileCore;
 using SQLInterpreter.Select;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SQLInterpreter.Commands
 {
     internal class MainParser
     {
-        private Table currentTable = null;
-        public void Parse(string str)
+        private Table _table = null; //Открытая таблица
+        private Dictionary<string, IParser> commands = new Dictionary<string, IParser>() {
+            {"alter",    new }, 
+            {"insert",   new }, 
+            {"update",   new ParserUpdate()}, 
+            {"delete",   new ParserDelete()}, 
+            {"select",   new ParserSelect()}, 
+            {"truncate", new }, 
+            {"restore",  new ParserRestore()}, 
+        };
+
+
+        public string Parse(string request)
         {
+            int index = request.IndexOf(' '); //Находим индекс конца первого слова - названия команды
+            string command = request.Substring(0, index).ToLower();
+            request = request.Remove(0, index + 1);
 
-            str = str.Trim();
-            //Проверям наличие точки с запятой в выражении
-            if (str[str.Length - 1] != ';') throw new ArgumentException("Синтаксическая ошибка. В конце запроса ожидалось ';'");
+            index = request.IndexOf(' '); //Находим индекс следующего пробела с именем таблицы
+            string tableName = request.Substring(0, index);
 
 
-            int index = str.IndexOf(' ');
-            string command = str.Substring(0, index).ToLower();
-            str = str.Remove(0, index + 1);
-              
+            if (command.Equals("open"))
+            {
+                OpenCommand openCommand = new OpenCommand();
+                _table = openCommand.Open(request);
+                return "Таблица" + _table.Name + "открыта";
+            }
+            else if (command.Equals("drop"))
+            {
+
+            }
+            else if (command.Equals("close"))
+            {
+
+            }
+            else if (command.Equals("exit"))
+            {
+                Console.WriteLine("SQL>>Работа интерперетатора SQL завершена.");
+                _table = null;
+                Environment.Exit(0);
+            }
+            else if (commands.ContainsKey(command))
+            {
+                tables.TryGetValue(tableName, out _table);
+                return commands[command].GetResult(_table, request);
+            }
+            else
+            {
+                return "Запрос " + command + "не найден.";
+            }
+
+            
+
+            /*
             if (command.Equals("alter"))
             {
                 AlterCommand alterCommand = new AlterCommand();
@@ -99,7 +143,7 @@ namespace SQLInterpreter.Commands
                     Console.WriteLine(parserUpdate.GetResult());
                 }
                 else Console.WriteLine("Нет открытых таблиц.");
-            }
+            } */
         }
     }
 }
