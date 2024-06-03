@@ -15,6 +15,7 @@ namespace SQLInterpreter.Commands
             {
                 Table table = new Table(tableName + ".dbf");
                 table.Truncate();
+                
             }catch(Exception ex)
             {
                 throw new ArgumentException("Нет такой таблицы (файла)");

@@ -46,6 +46,7 @@
     <Compile Include="ActivityDelete.cs" />
     <Compile Include="ActivityRestore.cs" />
     <Compile Include="ActivitySelect.cs" />
+    <Compile Include="Commands\AlterCommand.cs" />
     <Compile Include="Commands\CreateCommand.cs" />
     <Compile Include="Commands\DropCommand.cs" />
     <Compile Include="Commands\InsertCommand.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="ParserRestore.cs" />
     <Compile Include="ParserSelect.cs" />
     <Compile Include="ParserUpdate.cs" />
+    <Compile Include="Types\NumberStringCheck.cs" />
     <Compile Include="UpdateActivity.cs" />
     <Compile Include="Where\LogicEntries.cs" />
     <Compile Include="Where\ParserWhere.cs" />

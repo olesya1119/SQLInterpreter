@@ -13,6 +13,7 @@ namespace SQLInterpreter.Commands
         {
             try
             {
+                tableName = tableName.TrimEnd(';');
                 return new Table(tableName+".dbf");
 
             }catch (Exception ex)
