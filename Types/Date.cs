@@ -35,7 +35,7 @@ namespace SQLInterpreter
             get { return year; }
             private set
             {
-                if (value >= 10000 || value < 0) throw new ArgumentException("Синтаксическая ошибка");
+                if (value >= 10000 || value < 0) throw new ArgumentException("Синтаксическая ошибка. Значение года " + value.ToString() + " невозможное");
                 year = value;
             }
         }
@@ -45,7 +45,7 @@ namespace SQLInterpreter
             get { return month; }
             private set
             {
-                if (value > 12 || value <= 0) throw new ArgumentException("Синтаксическая ошибка");
+                if (value > 12 || value <= 0) throw new ArgumentException("Синтаксическая ошибка. Значение месяца " + value.ToString() + " невозможное");
                 month = value;
             }
         }
@@ -57,21 +57,21 @@ namespace SQLInterpreter
             {
                 if (month != 2 || month != 4 || month != 6 || month != 9 || month != 11)
                 {
-                    if (value > 31 || value <= 0) throw new ArgumentException("Синтаксическая ошибка");
+                    if (value > 31 || value <= 0) throw new ArgumentException("Синтаксическая ошибка. Значение дня " + value.ToString() + " невозможное");
                 }
                 else if (month != 2)
                 {
-                    if (value > 30 || value <= 0) throw new ArgumentException("Синтаксическая ошибка");
+                    if (value > 30 || value <= 0) throw new ArgumentException("Синтаксическая ошибка. Значение дня " + value.ToString() + " невозможное");
                 }
                 else 
                 {
                     if (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0))
                     {
-                        if (value > 29 || value <= 0) throw new ArgumentException("Синтаксическая ошибка");
+                        if (value > 29 || value <= 0) throw new ArgumentException("Синтаксическая ошибка. Значение дня " + value.ToString() + " невозможное");
                     }
                     if (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0))
                     {
-                        if (value > 28 || value <= 0) throw new ArgumentException("Синтаксическая ошибка");
+                        if (value > 28 || value <= 0) throw new ArgumentException("Синтаксическая ошибка. Значение дня " + value.ToString() + " невозможное");
                     }
 
                 }
@@ -96,7 +96,7 @@ namespace SQLInterpreter
                     Day = Int32.Parse(data.Substring(6, 2));
 
                 }
-                else if (data.Length == 10) //Если в формате YYYY-MM-DD
+                else if (data.Length == 10) //Если в формате YYYY-MM-DD / YYYY.MM.DD
                 {
                     Year = Int32.Parse(data.Substring(0, 4));
                     Month = Int32.Parse(data.Substring(4, 2));
@@ -104,11 +104,11 @@ namespace SQLInterpreter
                 }
                 else
                 {
-                    throw new Exception("Синтаксичекая ошибка.");
+                    throw new Exception("Синтаксичекая ошибка. Формат даты неверный.");
                 }
             }
             catch {
-                throw new Exception("Синтаксичекая ошибка.");
+                throw new Exception("Синтаксичекая ошибка. Формат даты неверный.");
             }
 
         }

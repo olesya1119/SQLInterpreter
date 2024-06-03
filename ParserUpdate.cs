@@ -9,26 +9,38 @@ namespace SQLInterpreter
 {
     public class ParserUpdate
     {
-        //private Table _table;
+        private string _stringCommand;
         private List<string> _command = new List<string>();
-        public List<string> Command { get => _command; } //{field1 , value1, field2 , value2, ...}
-        public ParserUpdate(string commandString)
+        public List<string> Command { get => _command; } //{field1, value1, field2, value2, ...}
+        private IActivity _activity;
+        private Table _table;
+        public ParserUpdate(string command, Table table)
         {
-            Parse(commandString);
+            Parse(command);
+            _activity = new ActivityUpdate(_command);
+            _table = table;
+            _stringCommand = command;
         }
         
+        public string GetResult()
+        {
+            ParserWhere parserWhere = new ParserWhere(_table, _stringCommand);
+            List<Entry> entries = _table.RunForArray(_activity, parserWhere.GetResult());
+            return "Изменено " + entries.Count + " строк.\n"; //Результирующая строка
+        }
+
         private void Parse(string commandString)
         {
             commandString = commandString.Trim().TrimEnd(';');
-            // _command.Add(commandString.Split(' ')[1]); // Добавили название таблицы
             int setIndex = -1, whereIndex = -1;
             for (int i = 8; i < commandString.Length - 7; i++)
             {
                 if (commandString.Substring(i, 5).ToLower() == " set ") setIndex = i + 5;
-                if (commandString.Substring(i, 7).ToLower() == " where ") whereIndex = i;
+                if (commandString.Substring(i, 7).ToLower() == " where ") whereIndex = i + 1;
             }
-            if (setIndex == -1 || whereIndex == -1) throw new Exception("set и/или where не найден(ы)");
-            string argumentsWithData = commandString.Substring(setIndex, whereIndex - setIndex), buf = "";
+            if (setIndex == -1) throw new Exception("set не найден");
+            if (whereIndex == -1) whereIndex = commandString.Length;
+            string buf = "";
             bool nowIsString = false, nowIsArgument = true;
             for (int i = setIndex; i < whereIndex; i++)
             {
@@ -66,13 +78,14 @@ namespace SQLInterpreter
                             nowIsString = true;
                             continue;
                         }
-                        if (commandString[i] != ' ') buf += commandString[i];
                         if (commandString[i] == ',')
                         {
                             _command.Add(buf);
                             buf = "";
                             nowIsArgument = true;
+                            continue;
                         }
+                        if (commandString[i] != ' ') buf += commandString[i];
                     }
                 }
                 if (i == whereIndex - 1) _command.Add(buf);

@@ -71,7 +71,8 @@
     <Compile Include="ParserSelect.cs" />
     <Compile Include="ParserUpdate.cs" />
     <Compile Include="Types\NumberStringCheck.cs" />
-    <Compile Include="UpdateActivity.cs" />
+    <Compile Include="Types\EntryToString.cs" />
+    <Compile Include="ActivityUpdate.cs" />
     <Compile Include="Where\LogicEntries.cs" />
     <Compile Include="Where\ParserWhere.cs" />
     <Compile Include="Types\Date.cs" />
@@ -79,7 +80,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="res\dbtfile.dbt" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

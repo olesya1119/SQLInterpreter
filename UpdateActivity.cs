@@ -5,11 +5,11 @@ using SQLInterpreter.Properties.FileCore;
 
 namespace SQLInterpreter
 {
-    public class UpdateActivity : IActivity
+    public class ActivityUpdate : IActivity
     {
         private List<string> _command;
 
-        public UpdateActivity(List<string> command)
+        public ActivityUpdate(List<string> command)
         {
             _command = command;
         }

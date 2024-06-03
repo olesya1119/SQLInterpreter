@@ -11,7 +11,7 @@ namespace SQLInterpreter
     {
         public void Do(Entry entry)
         {
-            entry.IsDeleted = false;
+            entry.IsDeleted = true;
         }
     }
 }

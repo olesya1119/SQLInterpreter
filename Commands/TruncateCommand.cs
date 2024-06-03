@@ -13,6 +13,7 @@ namespace SQLInterpreter.Commands
         {
             try
             {
+                tableName = tableName.TrimEnd(';');
                 Table table = new Table(tableName + ".dbf");
                 table.Truncate();
                 

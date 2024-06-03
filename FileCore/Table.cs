@@ -16,7 +16,7 @@ namespace SQLInterpreter.Properties.FileCore
     {
         private string _name;
 
-        public string Name { get { return _name; } }
+        public string Name {  get { return _name; } }
 
         public Table(string name)
         {
@@ -24,6 +24,7 @@ namespace SQLInterpreter.Properties.FileCore
             EntryVirtualArray entryVirtualArray = new EntryVirtualArray(name);
             entryVirtualArray.Close();
         }
+
         
 
         /// <summary>
@@ -130,7 +131,7 @@ namespace SQLInterpreter.Properties.FileCore
                  dbtfile = new DbtFile(dbtfilePath, null);
             }
             dbtfile.AddData(Encoding.ASCII.GetBytes(textData));
-            uint blockIndex = dbtfile.Header.NextFreeBlock;
+            uint blockIndex = dbtfile.Header.NextFreeBlock - 1;
             dbtfile.Close();
             return blockIndex;
         }
