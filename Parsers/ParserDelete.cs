@@ -23,7 +23,7 @@ namespace SQLInterpreter
             ParserWhere parserWhere = new ParserWhere(table, args);
             List<Entry> entries = table.RunForArray(_activity, parserWhere.GetResult());
 
-            return "Изменено " + entries.Count + " строк.\n"; //Результирующая строка
+            return "Изменено " + entries.Count + " строк."; //Результирующая строка
         }
     }
 }

@@ -45,6 +45,7 @@ namespace SQLInterpreter.Properties.FileCore
                 for (int i = 0; i < fieldsHeaders.Length; i++)
                 {
                     var currfield = header.Fields.Find(x => x.Name == fieldsHeaders[i]);//находим тип текущего поля
+                    if (currfield == null) throw new ArgumentException("Поле с именем " + fieldsHeaders[i] + " не найдено.");
                     if (currfield.Type == 'D')
                     {
                         Date date = new Date(fieldData[i]);
