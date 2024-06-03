@@ -123,6 +123,11 @@ namespace SQLInterpreter
             return year == ((Date)obj).year && month == ((Date)obj).month && day == ((Date)obj).day;
         }
 
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
 
         public byte[] ToByteArray()
         {

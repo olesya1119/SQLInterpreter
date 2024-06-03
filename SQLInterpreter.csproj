@@ -43,16 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActivityDelete.cs" />
-    <Compile Include="ActivityRestore.cs" />
-    <Compile Include="ActivitySelect.cs" />
-    <Compile Include="Commands\AlterCommand.cs" />
-    <Compile Include="Commands\CreateCommand.cs" />
-    <Compile Include="Commands\DropCommand.cs" />
-    <Compile Include="Commands\InsertCommand.cs" />
-    <Compile Include="Commands\MainParser.cs" />
-    <Compile Include="Commands\OpenCommand.cs" />
-    <Compile Include="Commands\TruncateCommand.cs" />
+    <Compile Include="Activites\ActivityDelete.cs" />
+    <Compile Include="Activites\ActivityRestore.cs" />
+    <Compile Include="Activites\ActivitySelect.cs" />
+    <Compile Include="Parsers\AlterCommand.cs" />
+    <Compile Include="Parsers\CreateCommand.cs" />
+    <Compile Include="Parsers\DropCommand.cs" />
+    <Compile Include="Parsers\InsertCommand.cs" />
+    <Compile Include="Parsers\IParser.cs" />
+    <Compile Include="Parsers\MainParser.cs" />
+    <Compile Include="Parsers\OpenCommand.cs" />
+    <Compile Include="Parsers\TruncateCommand.cs" />
     <Compile Include="ConsoleHandler.cs" />
     <Compile Include="FileCore\Constants.cs" />
     <Compile Include="FileCore\DbfField.cs" />
@@ -63,19 +64,18 @@
     <Compile Include="FileCore\Entry.cs" />
     <Compile Include="FileCore\EntryVirtualArray.cs" />
     <Compile Include="FileCore\Table.cs" />
-    <Compile Include="IActivity.cs" />
-    <Compile Include="Parser.cs" />
+    <Compile Include="Activites\IActivity.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="ParserDelete.cs" />
-    <Compile Include="ParserRestore.cs" />
-    <Compile Include="ParserSelect.cs" />
-    <Compile Include="ParserUpdate.cs" />
-    <Compile Include="Types\NumberStringCheck.cs" />
-    <Compile Include="Types\EntryToString.cs" />
-    <Compile Include="ActivityUpdate.cs" />
-    <Compile Include="Where\LogicEntries.cs" />
-    <Compile Include="Where\ParserWhere.cs" />
-    <Compile Include="Types\Date.cs" />
+    <Compile Include="Parsers\ParserDelete.cs" />
+    <Compile Include="Parsers\ParserRestore.cs" />
+    <Compile Include="Parsers\ParserSelect.cs" />
+    <Compile Include="Parsers\ParserUpdate.cs" />
+    <Compile Include="Utils\NumberStringCheck.cs" />
+    <Compile Include="Utils\EntryToString.cs" />
+    <Compile Include="Activites\ActivityUpdate.cs" />
+    <Compile Include="Utils\LogicEntries.cs" />
+    <Compile Include="Parsers\ParserWhere.cs" />
+    <Compile Include="Utils\Date.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
