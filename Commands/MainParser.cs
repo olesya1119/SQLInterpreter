@@ -22,8 +22,13 @@ namespace SQLInterpreter.Commands
             int index = str.IndexOf(' ');
             string command = str.Substring(0, index).ToLower();
             str = str.Remove(0, index + 1);
-
-
+              
+            if (command.Equals("alter"))
+            {
+                AlterCommand alterCommand = new AlterCommand();
+                alterCommand.Parse(str);
+            }
+          
             if (command.Equals("open"))
             {
                 try

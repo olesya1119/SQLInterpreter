@@ -9,6 +9,7 @@ namespace SQLInterpreter.Commands
 {
     internal class InsertCommand
     {
+        
         private (string, string[], string[]) Parse(string args)
         {
             int startInto = args.IndexOf("INTO ", StringComparison.OrdinalIgnoreCase) + "INTO ".Length;
@@ -44,7 +45,14 @@ namespace SQLInterpreter.Commands
             var entryArgs = Parse(args);
             string tableName = entryArgs.Item1;
             Table table = new Table(tableName+".dbf");
-            table.AddEntry(entryArgs.Item2,entryArgs.Item3);
+            try
+            {
+                table.AddEntry(entryArgs.Item2, entryArgs.Item3);
+            }catch(Exception ex)
+            {
+                throw new ArgumentException(ex.Message);
+            }
+           
         }
     }
 }

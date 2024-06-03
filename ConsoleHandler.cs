@@ -22,31 +22,18 @@ namespace SQLInterpreter
             MainParser mainParser = new MainParser();
             while (true)
             {
-                //try
-                //{
+
+                try
+                {
                     Console.Write("SQL>>");
                     var str = Console.ReadLine();
                     mainParser.Parse(str);
-                    //createCommand.Create(str);  
-                    //openCommand.Open(str);
-                    //insertCommand.Insert(str);
-                    //dropCommand.Drop(str);
-
-
-
-                    //Console.WriteLine(ex.Message);
-
-               //}
-                //catch (Exception e)
-                //{
-                   // Console.WriteLine(e.ToString());
-                //}
+                }catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
             }
-
-
-
-        }
-            
-        }
+        }         
     }
+}
 

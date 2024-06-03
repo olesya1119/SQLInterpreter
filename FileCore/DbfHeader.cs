@@ -18,7 +18,7 @@ namespace SQLInterpreter.Properties.FileCore
         private byte[] _reserved = new byte[20];//все зарезервированные 
         private List<DbfField> _fields = new List<DbfField>();//список полей
         private byte _terminator = Constants.Terminator;//признак окончания заголовка
-        
+
         public DbfHeader()
         {
             HasMemo = false;
@@ -28,7 +28,7 @@ namespace SQLInterpreter.Properties.FileCore
             EntrySize = (short)1;
         }
 
-        public DbfHeader(bool hasMemo, DateTime date, int count,short headerSize,short entrySize, List<DbfField> fields)
+        public DbfHeader(bool hasMemo, DateTime date, int count, short headerSize, short entrySize, List<DbfField> fields)
         {
             HasMemo = hasMemo;
             Date = date;
@@ -41,7 +41,7 @@ namespace SQLInterpreter.Properties.FileCore
                 _fields.Add(f);
             }
         }
-        
+
         public DbfHeader(byte[] data)
         {
             if (data.Length < _minHeader || (data.Length - _minHeader) % _fieldSize != 0)
@@ -55,7 +55,7 @@ namespace SQLInterpreter.Properties.FileCore
             for (int i = 1; i <= (data.Length - _minHeader) / _fieldSize; i++)
             {
                 var buf = new byte[_fieldSize];
-                Buffer.BlockCopy(data, i*offset, buf, 0, buf.Length);
+                Buffer.BlockCopy(data, i * offset, buf, 0, buf.Length);
                 _fields.Add(new DbfField(buf));
             }
         }
@@ -66,7 +66,7 @@ namespace SQLInterpreter.Properties.FileCore
         /// <exception cref="ArgumentException"></exception>
         public void AddField(DbfField field)
         {
-            DbfField f = (DbfField)field.Clone(); 
+            DbfField f = (DbfField)field.Clone();
             int offset = 1;
             foreach (var i in _fields)
             {
@@ -105,15 +105,31 @@ namespace SQLInterpreter.Properties.FileCore
         /// <exception cref="ArgumentException"></exception>
         public void UpdateField(DbfField field)
         {
+            bool isFound = false;
             for (int i = 0; i < _fields.Count; i++)
             {
                 if (_fields[i].Name == field.Name)
                 {
                     _fields[i] = field;
+                    isFound = true;
                     break;
                 }
             }
-            throw new ArgumentException("field with this name was not found");
+            if (!isFound) throw new ArgumentException("field with this name was not found");
+            bool hasMemo = false;
+            int offset = 1;
+            short entrySize = 1;
+            foreach (var i in _fields)
+            {
+                if (i.Type == 'M') hasMemo = true;
+                i.Offset = offset;
+                entrySize += i.Size;
+                offset += i.Size;
+            }
+            EntrySize = entrySize;
+            HasMemo = hasMemo;
+            Date = DateTime.Now;
+
         }
         /// <summary>
         /// удаляет поле из заголовка по его имени
@@ -148,7 +164,7 @@ namespace SQLInterpreter.Properties.FileCore
             HeaderSize -= _fieldSize;
             EntrySize -= deleteEntrySize;
         }
-        
+
         /// <summary>
         /// Получить поле из заголовка по имени поля
         /// </summary>
@@ -162,22 +178,22 @@ namespace SQLInterpreter.Properties.FileCore
             }
             throw new ArgumentException("Поля с таким именем не было найдено");
         }
-        
+
         public bool HasMemo
         {
-            get => (_hasMemo==Constants.Memo);
+            get => (_hasMemo == Constants.Memo);
             set
             {
-                _hasMemo = (value)?Constants.Memo:Constants.NoMemo;
+                _hasMemo = (value) ? Constants.Memo : Constants.NoMemo;
             }
         }
 
         public DateTime Date
         {
-            get => new DateTime(2000+_date[0], _date[1],_date[2]);
+            get => new DateTime(2000 + _date[0], _date[1], _date[2]);
             set
             {
-                _date[0] = (byte)(value.Year%100);
+                _date[0] = (byte)(value.Year % 100);
                 _date[1] = (byte)value.Month;
                 _date[2] = (byte)value.Day;
             }
@@ -185,32 +201,33 @@ namespace SQLInterpreter.Properties.FileCore
 
         public int Count
         {
-            get=>BitConverter.ToInt32(_count, 0);
-            set{
+            get => BitConverter.ToInt32(_count, 0);
+            set
+            {
                 if (value < 0) throw new ArgumentException("Count cannot be les then zero");
                 var v = BitConverter.GetBytes(value);
-                Buffer.BlockCopy(v,0,_count,0,v.Length);
+                Buffer.BlockCopy(v, 0, _count, 0, v.Length);
             }
         }
 
         public short HeaderSize
         {
-            get=>BitConverter.ToInt16(_headerSize, 0);
+            get => BitConverter.ToInt16(_headerSize, 0);
             set
             {
                 if (value < 0) throw new ArgumentException("header size cannot be les then zero");
                 var v = BitConverter.GetBytes(value);
-                Buffer.BlockCopy(v,0,_headerSize,0,v.Length);
+                Buffer.BlockCopy(v, 0, _headerSize, 0, v.Length);
             }
         }
         public short EntrySize
         {
-            get=>BitConverter.ToInt16(_entrySize, 0);
+            get => BitConverter.ToInt16(_entrySize, 0);
             set
             {
                 if (value < 0) throw new ArgumentException("header size cannot be les then zero");
                 var v = BitConverter.GetBytes(value);
-                Buffer.BlockCopy(v,0,_entrySize,0,v.Length);
+                Buffer.BlockCopy(v, 0, _entrySize, 0, v.Length);
             }
         }
 
@@ -222,18 +239,18 @@ namespace SQLInterpreter.Properties.FileCore
 
         public byte[] GetByte()
         {
-            var buf = new byte[_minHeader+_fieldSize*_fields.Count];
+            var buf = new byte[_minHeader + _fieldSize * _fields.Count];
             buf[0] = _hasMemo;
-            Buffer.BlockCopy(_date,0,buf,1,_date.Length);
-            Buffer.BlockCopy(_count,0,buf,4,_count.Length);
-            Buffer.BlockCopy(_headerSize,0,buf,8,_headerSize.Length);
-            Buffer.BlockCopy(_entrySize,0,buf,10,_entrySize.Length);
-            Buffer.BlockCopy(_reserved,0,buf,12,_reserved.Length);
+            Buffer.BlockCopy(_date, 0, buf, 1, _date.Length);
+            Buffer.BlockCopy(_count, 0, buf, 4, _count.Length);
+            Buffer.BlockCopy(_headerSize, 0, buf, 8, _headerSize.Length);
+            Buffer.BlockCopy(_entrySize, 0, buf, 10, _entrySize.Length);
+            Buffer.BlockCopy(_reserved, 0, buf, 12, _reserved.Length);
             int offset = 32;
             foreach (var i in _fields)
             {
                 var b = i.GetByte();
-                Buffer.BlockCopy(b,0,buf,offset,b.Length);
+                Buffer.BlockCopy(b, 0, buf, offset, b.Length);
                 offset += _fieldSize;
             }
             buf[offset] = _terminator;

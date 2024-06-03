@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
+using System.Text.RegularExpressions;
 using SQLInterpreter.FileCore;
-
+using SQLInterpreter.Types;
 
 namespace SQLInterpreter.Properties.FileCore
 {
@@ -33,45 +34,69 @@ namespace SQLInterpreter.Properties.FileCore
         ///   /// <param name="fieldData">данные полей</param>
         public void AddEntry(string[] fieldsHeaders, string[] fieldData)
         {
-            if (fieldsHeaders.Length != fieldData.Length) throw new ArgumentException("Синтаксическая ошибка"); 
-            EntryVirtualArray entryVirtualArray = new EntryVirtualArray(_name); //открываем таблицу
-            DbfHeader header = entryVirtualArray.Header;
-            Entry newEntry = new Entry(header);
-            for(int i = 0;i< fieldsHeaders.Length; i++)
+            EntryVirtualArray entryVirtualArray = null;
+            try
             {
-                var currfield = header.Fields.Find(x => x.Name == fieldsHeaders[i]);//находим тип текущего поля
-                if (currfield.Type == 'D')
+                //открываем таблицу
+                entryVirtualArray = new EntryVirtualArray(_name);
+                if (fieldsHeaders.Length != fieldData.Length) throw new ArgumentException("Синтаксическая ошибка");
+                DbfHeader header = entryVirtualArray.Header;
+                Entry newEntry = new Entry(header);
+                for (int i = 0; i < fieldsHeaders.Length; i++)
                 {
-                    Date date = new Date(fieldData[i]);
-                    newEntry.Update(fieldsHeaders[i], date.ToByteArray());
-                }
-                else
-                if (currfield.Type == 'L')// добавление логического типа данных 
-                {
-                    if (fieldData[i].Equals("t"))
-                        newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes("t"));
-                    if (fieldData[i].Equals("f"))
-                        newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes("f"));
-                    if (fieldData[i].Equals("n"))
-                        newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes("n"));
-                }
-                else
-                if (currfield.Type == 'N' || currfield.Type == 'C') // добавление числовых и сивольных данных 
-                {
-                    newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes(fieldData[i]));
-                }
-                else
-                if(currfield.Type == 'M') // мемо файлы
-                {
-                    fieldData[i]=fieldData[i].TrimStart('@');
-                    uint index = WriteToMemo(fieldData[i], _name);
-                    newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes(index.ToString()));
+                    var currfield = header.Fields.Find(x => x.Name == fieldsHeaders[i]);//находим тип текущего поля
+                    if (currfield.Type == 'D')
+                    {
+                        Date date = new Date(fieldData[i]);
+                        newEntry.Update(fieldsHeaders[i], date.ToByteArray());
+                    }
+                    else
+                    if (currfield.Type == 'L')// добавление логического типа данных 
+                    {
+                        if (fieldData[i].Equals("t") || fieldData[i].Equals("T"))
+                            newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes("t"));
+                        else
+                            if (fieldData[i].Equals("f") || fieldData[i].Equals("F"))
+                            newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes("f"));
+                        else
+                            if (fieldData[i].Equals("n") || fieldData[i].Equals("N"))
+                            newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes("n"));
+                        else throw new ArgumentException("Несоответствие значения " + fieldData[i] + " типу поля " + fieldsHeaders[i]);
+
+                    }
+                    else
+                    if (currfield.Type == 'N' || currfield.Type == 'C') // добавление числовых и сивольных данных 
+                    {
+
+                        if (currfield.Type == 'N')
+                        {
+                            if (!NumberStringCheck.IsValidNumberString(fieldData[i], currfield.Size, currfield.Accuracy))
+                            {
+                                throw new ArgumentException("Неверный формат данных числового поля");
+
+
+                            }
+                        }
+                        newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes(fieldData[i]));
+                    }
+                    else
+                    if (currfield.Type == 'M') // мемо файлы
+                    {
+                        fieldData[i] = fieldData[i].TrimStart('@');
+                        uint index = WriteToMemo(fieldData[i], _name);
+                        newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes(index.ToString()));
+                    }
+
                 }
 
+                entryVirtualArray.AppendEntry(newEntry);
+                entryVirtualArray.Close();
             }
-            
-            entryVirtualArray.AppendEntry(newEntry);
-            entryVirtualArray.Close();
+            catch (Exception ex)
+            {
+                entryVirtualArray.Close();
+                throw ex;
+            }
         }
         private uint WriteToMemo(string filePath,string tableName)
         {
@@ -179,15 +204,27 @@ namespace SQLInterpreter.Properties.FileCore
             EntryVirtualArray timedArray = new EntryVirtualArray(timedFileName, new DbfHeader(array.Header.GetByte()));
             timedArray.Header.Count = 0;
             timedArray.Header.UpdateField(field);
-            for (int i = 0; i < array.Header.Count; i++)
+            try
             {
-                Entry entry = array[i];
-                timedArray.AppendEntry(Entry.UpdateEntry(entry, timedArray.Header));
+                for (int i = 0; i < array.Header.Count; i++)
+                {
+                    Entry entry = array[i];
+                    timedArray.AppendEntry(Entry.UpdateEntry(entry, timedArray.Header));
+                }
+                timedArray.Close();
+                array.Close();
+                File.Delete(_name);
+                fileInfo.MoveTo(_name);
             }
-            timedArray.Close();
-            array.Close();
-            File.Delete(_name);
-            fileInfo.MoveTo(_name);
+            catch(Exception ex)
+            {
+                timedArray.Close();
+                array.Close();
+                File.Delete(_name);
+                fileInfo.MoveTo(_name);
+                throw ex; 
+            }
+           
         }
         /// <summary>
         /// метод для физического удаления помеченных записей

@@ -1,6 +1,8 @@
-﻿using System;
+﻿using SQLInterpreter.Types;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 
 namespace SQLInterpreter.Properties.FileCore
 {
@@ -48,6 +50,91 @@ namespace SQLInterpreter.Properties.FileCore
             }
             return entry;
         }
+
+
+        private static void CastFields(DbfField oldField, DbfField newField, Entry oldData, Entry newData)
+        {
+            if (oldField.Type == 'C' && newField.Type == 'N') // Строка -> числовой тип 
+            {
+                bool isNotDigitFlag = false;
+               
+                byte size = (newField.Size < oldField.Size) ? newField.Size : oldField.Size;
+                string data = Encoding.ASCII.GetString(oldData.GetValue(oldField.Name));
+                foreach (char c in data)
+                {
+                    if (!char.IsDigit(c) && c!='.' && c != '\0') isNotDigitFlag = true;
+                }
+                if (isNotDigitFlag)//записываем пустую строку если привидение невозможно
+                {
+                    data = "";
+                    for (int i = 0; i < size; i++) data += '\0';
+                    Buffer.BlockCopy(Encoding.ASCII.GetBytes(data), 0, newData.GetByte(), newField.Offset, size);
+
+                }
+                else
+                    data=NumberStringCheck.FormatString(data, size, newField.Accuracy);
+                    Buffer.BlockCopy(Encoding.ASCII.GetBytes(data), 0, newData.GetByte(), newField.Offset, size);
+            }
+            else
+            if (oldField.Type == 'L' && newField.Type == 'N' && newField.Accuracy == 0)//boolean => Целое
+            {
+                byte size = (newField.Size < oldField.Size) ? newField.Size : oldField.Size;
+                //byte size = (newField.Size < oldField.Size) ? oldField.Size : newField.Size;
+                //Buffer.BlockCopy(oldData.GetByte(), oldField.Offset, newData.GetByte(), newField.Offset, size);
+
+                string data = Encoding.ASCII.GetString(oldData.GetValue(oldField.Name));
+                if (data.Equals("t")) data = "1";
+                if (data.Equals("f")) data = "0";
+                if (data.Equals("n")) data = "0";
+
+                Buffer.BlockCopy(new byte[] { (byte)data[0] }, 0, newData.GetByte(), newField.Offset, size);
+
+
+            }else
+            if (oldField.Type == 'N' && oldField.Accuracy > 0 && newField.Type == 'N' && newField.Accuracy == 0)//Вещественное – целое с потерей дробной части
+            {
+                byte size = (newField.Size < oldField.Size) ? newField.Size : oldField.Size;
+                string data = Encoding.ASCII.GetString(oldData.GetValue(oldField.Name));
+                data = data.Remove(data.IndexOf('.'), oldField.Accuracy+1);
+                data = data.PadRight(size, '\0');
+                Buffer.BlockCopy(Encoding.ASCII.GetBytes(data), 0, newData.GetByte(), newField.Offset, size);
+            }
+            else
+            if(oldField.Type == 'N' && oldField.Accuracy==0 && newField.Type == 'N' && newField.Accuracy > 0) //Целое -> вещественное с дробной частью, равной 0
+            {
+                byte size = (newField.Size < oldField.Size) ? newField.Size : oldField.Size;
+                string data = Encoding.ASCII.GetString(oldData.GetValue(oldField.Name));
+                data=data.Insert(data.IndexOf('\0'),".");
+                data = data.Remove(data.Length-1);
+                for (int i = 0; i < newField.Accuracy; i++)
+                {
+                    data=data.Insert(data.IndexOf('\0'), "0");
+                    data = data.Remove(data.Length-1);
+                    
+                    if (data.IndexOf('\0') == size-1) break;
+                }
+               
+                Buffer.BlockCopy( Encoding.ASCII.GetBytes(data), 0, newData.GetByte(), newField.Offset, size);
+            }else
+
+            if(oldField.Type == 'N' && newField.Type == 'L') // Целое/вещественное => boolean
+            {
+                byte size = (newField.Size < oldField.Size) ? newField.Size : oldField.Size;
+
+                string data = Encoding.ASCII.GetString(oldData.GetValue(oldField.Name));
+                if (int.Parse(data) >= 0) data = "t";
+                else data = "f";
+
+                Buffer.BlockCopy(new byte[] { (byte)data[0] }, 0, newData.GetByte(), newField.Offset, size);
+            }
+
+            else
+            {
+                    byte size = (newField.Size < oldField.Size) ? newField.Size : oldField.Size;
+                    Buffer.BlockCopy(oldData.GetByte(), oldField.Offset, newData.GetByte(), newField.Offset, size);
+            }
+        }
+
         
         public static Entry UpdateEntry(Entry oldEntry, DbfHeader newEntryTemplate)//здесь ваша система,
                                                                                    //учитывающая приведения типов
@@ -61,11 +148,19 @@ namespace SQLInterpreter.Properties.FileCore
                 while (generator.Current != null && generator.Current.Name != i.Name) generator.MoveNext();
                 if (generator.Current != null)
                 {
-                    var f = generator.Current;
-                    var buf = new byte[i.Size]; 
-                    Buffer.BlockCopy(buf,0,entry.GetByte(),i.Offset,i.Size);
-                    byte size = (i.Size < f.Size) ? i.Size : f.Size;
-                    Buffer.BlockCopy(oldEntry.GetByte(),f.Offset,entry.GetByte(),i.Offset,size);
+                    var f = generator.Current;//старое поле
+                    var buf = new byte[i.Size];
+                    Buffer.BlockCopy(buf, 0, entry.GetByte(), i.Offset, i.Size);//заполняем буффер нулями
+                    // i и f - новое и старое поле
+                    CastFields(f, i, oldEntry, entry);
+                    //byte size = (i.Size < f.Size) ? i.Size : f.Size;
+                    //Buffer.BlockCopy(oldEntry.GetByte(), f.Offset, entry.GetByte(), i.Offset, size);// копирование из старого поля в новое
+
+                    //var f = generator.Current;
+                    //var buf = new byte[i.Size];
+                    //Buffer.BlockCopy(buf, 0, entry.GetByte(), i.Offset, i.Size);
+                    //byte size = (i.Size < f.Size) ? i.Size : f.Size;
+                    //Buffer.BlockCopy(oldEntry.GetByte(), f.Offset, entry.GetByte(), i.Offset, size);
                 }
             }
             return entry;

@@ -42,7 +42,7 @@ namespace SQLInterpreter.Commands
         }
 
 
-        private DbfField ParseField(string field)
+        public static DbfField ParseField(string field)
         {
             
             string name;
@@ -52,7 +52,13 @@ namespace SQLInterpreter.Commands
             byte accuracy=0;
             var parts = field.Split();
             name = parts[0];
+            parts[1] = parts[1].TrimStart('(');
             type = parts[1][0];
+
+           
+            
+
+            
             if (!Constants.IsCorrectType(type))
             {
                 throw new ArgumentException("Неправильный тип поля");
