@@ -155,11 +155,18 @@ namespace SQLInterpreter.Properties.FileCore
                 timedArray = new EntryVirtualArray(timedFileName, new DbfHeader(array.Header.GetByte()));
 
                 timedArray.Header.Count = 0;
+               
                 timedArray.Header.AddField(field);
+                DbtFile emptyDbtFile = new DbtFile(_name.Split('.')[0] + ".dbt", new DbtHeader());
+                uint nextFreeBlock = 2;
+                emptyDbtFile.Close();
+
                 for (int i = 0; i < array.Header.Count; i++)
                 {
                     Entry entry = array[i];
-                    timedArray.AppendEntry(Entry.ConvertEntry(entry, timedArray.Header));
+                    Entry newEntry = Entry.ConvertEntry(entry, timedArray.Header);
+                    newEntry.Update(field.Name, Encoding.ASCII.GetBytes(nextFreeBlock.ToString()));
+                    timedArray.AppendEntry(newEntry);  
                 }
             }
             catch (Exception ex)
