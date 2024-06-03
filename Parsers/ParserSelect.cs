@@ -1,4 +1,5 @@
-﻿using SQLInterpreter.Properties.FileCore;
+﻿using SQLInterpreter.Parsers;
+using SQLInterpreter.Properties.FileCore;
 using SQLInterpreter.Types;
 using System;
 using System.Collections.Generic;
@@ -9,28 +10,44 @@ using System.Xml.Linq;
 
 namespace SQLInterpreter.Select
 {
-    public class ParserSelect
+    public class ParserSelect : IParser
     {
-        private Table table;
-        private IActivity activity;
+        private Table _table;
+        private IActivity _activity;
 
         /// <summary>Названия полей, которые нужно вывести в таблицу</summary>
-        private List<string> fieldsNameForReturn;
+        private List<string> _fieldsNameForReturn;
 
         /// <summary>Логическое выражение для WHERE</summary>
-        private string logicalExpression;
+        private string _logicalExpression;
 
         /// <summary>
         /// Создание экземпляра парсера SELECT
         /// </summary>
         /// <param name="command">Запрос без ключевого слова SELECT</param>
         /// <param name="table">Таблица, в которой нужно искать значения</param>
-        public ParserSelect(string command, Table table) {
-            this.table = table;
-            activity = new ActivitySelect();
-            logicalExpression = "";
-            Parse(command);
+        public ParserSelect() {
+            _activity = new ActivitySelect();
+            _logicalExpression = "";
         }
+
+        /// <summary>
+        /// Вычисление результаты запроса SELECT
+        /// </summary>
+        /// <returns>Таблица для вывода</returns>
+        public string GetResult(Table table, string args)
+        {
+            _table = table;
+            ParserWhere parserWhere = new ParserWhere(table, _logicalExpression);
+            LogicEntries logicEntries = parserWhere.GetResult();
+            List<Entry> entries = table.RunForArray(_activity, logicEntries);
+            Parse(args);
+
+            List<List<string>> selectedEntries = Select(entries, _fieldsNameForReturn);
+            return GetResultString(selectedEntries); //Результирующая строка
+
+        }
+      
 
         /// <summary>
         /// Парсер команды SELECT. Разделяет входящий запрос на значния возращаемых полей и логическое выражение WHERE
@@ -38,9 +55,7 @@ namespace SQLInterpreter.Select
         /// <param name="command">Запрос без ключевого слова SELECT</param>
         /// <exception cref="Exception"></exception>
         private void Parse(string command)
-        {     
-
-            
+        {          
             bool fromIsFound = false; //Найдено ли ключевое слово FROM
             string fields = ""; //Значения полей (то что идет то from)
 
@@ -48,7 +63,7 @@ namespace SQLInterpreter.Select
             for (int i = 0; i < command.Length - 6; i++)
             {
                 if (fromIsFound)
-                    logicalExpression += command[i + 5].ToString();
+                    _logicalExpression += command[i + 5].ToString();
 
                 else
                 {
@@ -61,27 +76,14 @@ namespace SQLInterpreter.Select
 
 
             //Разделяем названия полей на строковый список
-            fieldsNameForReturn = fields.Split(new char[] { ',', ' ' }).ToList();
+            _fieldsNameForReturn = fields.Split(new char[] { ',', ' ' }).ToList();
 
             //Удаляем пустые элементы, если такие есть
-            while (fieldsNameForReturn.Remove("")) ;
+            while (_fieldsNameForReturn.Remove("")) ;
         }
 
 
-        /// <summary>
-        /// Вычисление результаты запроса SELECT
-        /// </summary>
-        /// <returns>Таблица для вывода</returns>
-        public string GetResult()
-        {
-            ParserWhere parserWhere = new ParserWhere(table, logicalExpression);
-            LogicEntries logicEntries = parserWhere.GetResult();
-            List<Entry> entries = table.RunForArray(activity, logicEntries);
-
-            List<List<string>> selectedEntries = Select(entries, fieldsNameForReturn);
-            return GetResultString(selectedEntries); //Результирующая строка
-        }
-
+     
         /// <summary>
         /// Выбирает и возвращает только нужные значения
         /// </summary>
@@ -114,7 +116,7 @@ namespace SQLInterpreter.Select
 
 
                 //Теперь добавим сами записи
-                List<List<string>> entriesMatrix = EntryToString.EntryListToStringMatrix(entries, table.Name);
+                List<List<string>> entriesMatrix = EntryToString.EntryListToStringMatrix(entries, _table.Name);
 
                 for (int i = 0; i < entriesMatrix.Count; i++)
                 {
@@ -137,7 +139,7 @@ namespace SQLInterpreter.Select
                 }
 
                 //Теперь добавим сами записи
-                List<List<string>> entriesMatrix = EntryToString.EntryListToStringMatrix(entries, table.Name, indexs);
+                List<List<string>> entriesMatrix = EntryToString.EntryListToStringMatrix(entries, _table.Name, indexs);
 
                 for (int i = 0; i < entriesMatrix.Count; i++)
                 {
@@ -231,6 +233,7 @@ namespace SQLInterpreter.Select
 
 
         }
-        
+
+
     }
 }
