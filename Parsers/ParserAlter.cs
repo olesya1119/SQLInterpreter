@@ -29,11 +29,19 @@ namespace SQLInterpreter.Commands
         private void AddColumn(string args)
         {
             args = args.TrimEnd(';');
+            args = args.Trim();
             
             //args = args.Remove(args.Length-1,1);
             DbfField newField = CreateCommand.ParseField(args);
             Table table = new Table(tableName + ".dbf");
-            table.AddColumn(newField);
+            try
+            {
+                table.AddColumn(newField);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
         }
 
@@ -55,6 +63,7 @@ namespace SQLInterpreter.Commands
             args = args.TrimEnd(';');
             DbfField newField = CreateCommand.ParseField(args);
             table.UpdateColumn(newField);
+            
         }
 
 

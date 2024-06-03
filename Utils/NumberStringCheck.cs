@@ -48,7 +48,7 @@ namespace SQLInterpreter.Types
             // Ищем позицию точки, если она есть
             int dotIndex = numberString.IndexOf('.');
 
-            if (dotIndex != -1)
+            if (dotIndex != -1) // если точка есть
             {
                 // Если точность 0, удаляем всё после точки
                 if (accuracy == 0)
@@ -72,7 +72,7 @@ namespace SQLInterpreter.Types
             // Заполняем оставшиеся символы '\0' до нужной длины
             if (numberString.Length < length)
             {
-                if (accuracy > 0) { 
+                if (accuracy > 0 && dotIndex == -1) { 
                     numberString += '.';
                     for(int i=0; i< accuracy; i++) numberString += '0';
                 }
