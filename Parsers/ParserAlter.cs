@@ -24,7 +24,6 @@ namespace SQLInterpreter.Commands
             catch {
                 throw new Exception("Поле с именем " + args + " не найдено.");
             }
-
         }
 
         private void AddColumn(string args)
