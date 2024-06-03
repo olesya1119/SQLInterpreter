@@ -22,43 +22,58 @@ namespace SQLInterpreter.Commands
 
         private (string,string[]) Parse(string sqlCommand)
         {
-            //удаляем слово TABLE
-            int index = sqlCommand.IndexOf('E');
-            sqlCommand = sqlCommand.Substring(index + 1);
-            sqlCommand = sqlCommand.TrimStart();
+            try
+            {
+                //удаляем слово TABLE
+                int index = sqlCommand.IndexOf("TABLE", StringComparison.OrdinalIgnoreCase);
+                sqlCommand = sqlCommand.Substring(index + 6);
+                sqlCommand = sqlCommand.TrimStart();
 
-            index = sqlCommand.IndexOf(' ');
+                index = sqlCommand.IndexOf(' ');
 
-            //Разделить строку на две части
-            string tableName = sqlCommand.Substring(0, index);
-            string fieldsPart = sqlCommand.Substring(index + 1);
-            fieldsPart = fieldsPart.TrimEnd(';');//удаляем ; и скобки
-            fieldsPart = fieldsPart.TrimStart('(');
-            fieldsPart = fieldsPart.Remove(fieldsPart.Length-1);
+                //Разделить строку на две части
+                string tableName = sqlCommand.Substring(0, index);
+                string fieldsPart = sqlCommand.Substring(index + 1);
+                fieldsPart = fieldsPart.TrimEnd(';');//удаляем ; и скобки
+                fieldsPart = fieldsPart.TrimStart('(');
+                fieldsPart = fieldsPart.Remove(fieldsPart.Length - 1);
+                fieldsPart=fieldsPart.Trim();
 
-            //делимна отдельные аргументы
-            string[] fields = fieldsPart.Split(new string[] { ", " }, StringSplitOptions.None);
-            return (tableName, fields);
+                //делимна отдельные аргументы
+                string[] fields = fieldsPart.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries); // ??
+                return (tableName, fields);
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException("Синтаксическая ошибка в выражении");
+            }
         }
 
 
         public static DbfField ParseField(string field)
         {
-            
+
             string name;
             char type;
             int offset = 0;
-            byte size=0;
-            byte accuracy=0;
-            var parts = field.Split();
-            name = parts[0];
-            parts[1] = parts[1].TrimStart('(');
-            type = parts[1][0];
+            byte size = 0;
+            byte accuracy = 0;
+            //var parts = field.Split();
+            //name = parts[0];
+            //parts[1] = parts[1].TrimStart('(');
+            //type = parts[1][0];
 
-           
-            
+            name = field.Substring(0,field.IndexOf(' '));
+            field = field.Substring(field.IndexOf(' '));
+            field = field.Trim();
+            type = field[0];
+            field = field.Remove(0, 1);
+            field = field.Trim();
 
-            
+
+
+
+
             if (!Constants.IsCorrectType(type))
             {
                 throw new ArgumentException("Неправильный тип поля");
@@ -77,27 +92,27 @@ namespace SQLInterpreter.Commands
             }
             if (type.Equals('N'))//парсим ширину и точность
             {
-                int startIndex = parts[1].IndexOf('(');
-                int endIndex = parts[1].IndexOf(')');
-                string numbers = parts[1].Substring(startIndex + 1, endIndex - startIndex - 1);
+                int startIndex = field.IndexOf('(');
+                int endIndex = field.IndexOf(')');
+                string numbers = field.Substring(startIndex + 1, endIndex - startIndex - 1);
                 if (numbers.Contains(","))
                 {
                     string[] splittedNumbers = numbers.Split(',');
-                    size = byte.Parse(splittedNumbers[0]);
-                    accuracy = byte.Parse(splittedNumbers[1]);
+                    size = byte.Parse(splittedNumbers[0].Trim());
+                    accuracy = byte.Parse(splittedNumbers[1].Trim());
                 } else size = byte.Parse(numbers);
             }
             else if (type.Equals('C'))//парсим только ширину
             {
-                int startIndex = parts[1].IndexOf('(');
-                int endIndex = parts[1].IndexOf(')');
-                string number = parts[1].Substring(startIndex + 1, endIndex - startIndex - 1);
-                size = byte.Parse(number);
+                int startIndex = field.IndexOf('(');
+                int endIndex = field.IndexOf(')');
+                string number = field.Substring(startIndex + 1, endIndex - startIndex - 1);
+                size = byte.Parse(number.Trim());
                 accuracy = 0;
             }
             else
             {
-                if (parts[1].Length > 1) throw new ArgumentException("Неверный формат поля");
+                if (field.Length > 1) throw new ArgumentException("Неверный формат поля");
             }
             return new DbfField(name, type, offset, size, accuracy);
 
@@ -105,10 +120,12 @@ namespace SQLInterpreter.Commands
  
         public string GetResult(string args)
         {
-            var parts = Parse(args);
-            string tableName=parts.Item1;
-            var fields = parts.Item2;
-            header = new DbfHeader();
+            
+                var parts = Parse(args);
+                string tableName = parts.Item1;
+                var fields = parts.Item2;
+                header = new DbfHeader();
+            
            
             foreach(string field in fields)
             {

@@ -75,8 +75,9 @@ namespace SQLInterpreter.Properties.FileCore
                             {
                                 throw new ArgumentException("Неверный формат данных числового поля");
                             }
+                            fieldData[i] = NumberStringCheck.FormatString(fieldData[i], currfield.Size, currfield.Accuracy);
                         }
-                        fieldData[i]=NumberStringCheck.FormatString(fieldData[i], currfield.Size, currfield.Accuracy);
+                        
                         newEntry.Update(fieldsHeaders[i], Encoding.ASCII.GetBytes(fieldData[i]));
                     }
                     else
@@ -143,43 +144,75 @@ namespace SQLInterpreter.Properties.FileCore
         /// <param name="field">поле таблицы</param>
         public void AddColumn(DbfField field)
         {
+            FileInfo fileInfo=null;
+            EntryVirtualArray array=null;
+            EntryVirtualArray timedArray = null;
             string timedFileName = "9821383831.dbf";
-            FileInfo fileInfo = new FileInfo(timedFileName);
-            EntryVirtualArray array = new EntryVirtualArray(_name);
-            EntryVirtualArray timedArray = new EntryVirtualArray(timedFileName, new DbfHeader(array.Header.GetByte()));
-            timedArray.Header.Count = 0;
-            timedArray.Header.AddField(field);
-            for (int i = 0; i < array.Header.Count; i++)
+            try
             {
-                Entry entry = array[i];
-                timedArray.AppendEntry(Entry.ConvertEntry(entry, timedArray.Header));
+               
+                fileInfo = new FileInfo(timedFileName);
+                array = new EntryVirtualArray(_name);
+                timedArray = new EntryVirtualArray(timedFileName, new DbfHeader(array.Header.GetByte()));
+
+                timedArray.Header.Count = 0;
+                timedArray.Header.AddField(field);
+                for (int i = 0; i < array.Header.Count; i++)
+                {
+                    Entry entry = array[i];
+                    timedArray.AppendEntry(Entry.ConvertEntry(entry, timedArray.Header));
+                }
             }
+            catch (Exception ex)
+            {
+                timedArray.Close();
+                array.Close();
+                File.Delete(timedFileName);
+                //fileInfo.MoveTo(_name);
+                throw ex;
+            }
+
             timedArray.Close();
             array.Close();
             File.Delete(_name);
             fileInfo.MoveTo(_name);
         }
+
+
+
         /// <summary>
         /// метод удаления поля из таблицы
         /// </summary>
         /// <param name="columnName">имя удаляемого поля</param>
         public void RemoveColumn(string columnName)
         {
+
             string timedFileName = "9821383831.dbf";
             FileInfo fileInfo = new FileInfo(timedFileName);
             EntryVirtualArray array = new EntryVirtualArray(_name);
             EntryVirtualArray timedArray = new EntryVirtualArray(timedFileName, new DbfHeader(array.Header.GetByte()));
-            timedArray.Header.Count = 0;
-            timedArray.Header.RemoveField(columnName);
-            for (int i = 0; i < array.Header.Count; i++)
+            try
             {
-                Entry entry = array[i];
-                timedArray.AppendEntry(Entry.ConvertEntry(entry, timedArray.Header));
+                timedArray.Header.Count = 0;
+                timedArray.Header.RemoveField(columnName);
+                for (int i = 0; i < array.Header.Count; i++)
+                {
+                    Entry entry = array[i];
+                    timedArray.AppendEntry(Entry.ConvertEntry(entry, timedArray.Header));
+                }
+                timedArray.Close();
+                array.Close();
+                File.Delete(_name);
+                fileInfo.MoveTo(_name);
             }
-            timedArray.Close();
-            array.Close();
-            File.Delete(_name);
-            fileInfo.MoveTo(_name);
+            catch (Exception ex)
+            {
+                timedArray.Close();
+                array.Close();
+                File.Delete(timedFileName);
+                //fileInfo.MoveTo(_name);
+                throw ex;
+            }
         }
         /// <summary>
         /// метод переименование поля таблицы
@@ -188,9 +221,17 @@ namespace SQLInterpreter.Properties.FileCore
         /// <param name="newColumnName">новое имя</param>
         public void RenameColumn(string oldColumnName, string newColumnName)
         {
-            EntryVirtualArray array = new EntryVirtualArray(_name);
-            array.Header.RenameField(oldColumnName,newColumnName);
-            array.Close();
+            EntryVirtualArray array = null;
+            try
+            {
+                array = new EntryVirtualArray(_name);
+                array.Header.RenameField(oldColumnName, newColumnName);
+            }
+            catch (Exception ex)
+            {
+                array.Close();
+                throw ex;
+            }
         }
         /// <summary>
         /// обновляет поле таблицы
@@ -220,8 +261,8 @@ namespace SQLInterpreter.Properties.FileCore
             {
                 timedArray.Close();
                 array.Close();
-                File.Delete(_name);
-                fileInfo.MoveTo(_name);
+                File.Delete(timedFileName);
+                //fileInfo.MoveTo(_name);
                 throw ex; 
             }
            
