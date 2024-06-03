@@ -1,4 +1,5 @@
-﻿using SQLInterpreter.Properties.FileCore;
+﻿using SQLInterpreter.Parsers;
+using SQLInterpreter.Properties.FileCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,28 +8,22 @@ using System.Threading.Tasks;
 
 namespace SQLInterpreter
 {
-    public class ParserDelete
+    public class ParserDelete : IParser
     {
-        private string command;
-        private Table table;
-        private IActivity activity;
+        private IActivity _activity;
 
-
-        public ParserDelete(string command, Table table)
-        {
-            this.command = command;
-            this.table = table;
-            activity = new ActivityDelete();
+        public ParserDelete()
+        { 
+            _activity = new ActivityDelete();
         }
 
-        public string GetResult()
+        public string GetResult(Table table, string args)
         {
-            ParserWhere parserWhere = new ParserWhere(table, command);
-
-            List<Entry> entries = table.RunForArray(activity, parserWhere.GetResult());
+ 
+            ParserWhere parserWhere = new ParserWhere(table, args);
+            List<Entry> entries = table.RunForArray(_activity, parserWhere.GetResult());
 
             return "Изменено " + entries.Count + " строк.\n"; //Результирующая строка
-
         }
     }
 }

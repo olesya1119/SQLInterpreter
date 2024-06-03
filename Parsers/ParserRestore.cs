@@ -1,4 +1,5 @@
-﻿using SQLInterpreter.Properties.FileCore;
+﻿using SQLInterpreter.Parsers;
+using SQLInterpreter.Properties.FileCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,29 +8,30 @@ using System.Threading.Tasks;
 
 namespace SQLInterpreter
 {
-    public class ParserRestore
+    public class ParserRestore : IParser
     {
-        private string command;
-        private Table table;
-        IActivity activity;
+        private IActivity _activity;
 
-
-        public ParserRestore(string command, Table table)
+        /// <summary>
+        /// Создание экземпляра класса 
+        /// </summary>
+        public ParserRestore()
         {
-            this.command = command;
-            this.table = table;
-            activity = new ActivityRestore();
+            _activity = new ActivityRestore();
         }
 
-
-        public string GetResult()
+        /// <summary>
+        /// Получить результат выполнения команды RESTORE
+        /// </summary>
+        /// <param name="table">Таблица в котороый</param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public string GetResult(Table table, string args)
         {
-            ParserWhere parserWhere = new ParserWhere(table, command);
+            ParserWhere parserWhere = new ParserWhere(table, args);
             LogicEntries logicEntries = parserWhere.GetResult();
-    
-            return "Изменено " + table.RunForArray(activity, logicEntries) + "строк.\n"; //Результирующая строка
 
+            return "Изменено " + table.RunForArray(_activity, logicEntries) + "строк.\n"; //Результирующая строка
         }
- 
     }
 }

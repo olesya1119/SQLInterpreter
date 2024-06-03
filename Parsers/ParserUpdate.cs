@@ -1,4 +1,5 @@
-﻿using SQLInterpreter.Properties.FileCore;
+﻿using SQLInterpreter.Parsers;
+using SQLInterpreter.Properties.FileCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,27 +8,27 @@ using System.Threading.Tasks;
 
 namespace SQLInterpreter
 {
-    public class ParserUpdate
+    public class ParserUpdate : IParser
     {
-        private string _stringCommand;
+
         private List<string> _command = new List<string>();
         public List<string> Command { get => _command; } //{field1, value1, field2, value2, ...}
         private IActivity _activity;
-        private Table _table;
-        public ParserUpdate(string command, Table table)
+        private Table _table;        
+
+
+        public string GetResult(Table table, string args)
         {
-            Parse(command);
+            Parse(args);
+
+            ParserWhere parserWhere = new ParserWhere(table, args);
+            List<Entry> entries = table.RunForArray(_activity, parserWhere.GetResult());
             _activity = new ActivityUpdate(_command);
-            _table = table;
-            _stringCommand = command;
-        }
-        
-        public string GetResult()
-        {
-            ParserWhere parserWhere = new ParserWhere(_table, _stringCommand);
-            List<Entry> entries = _table.RunForArray(_activity, parserWhere.GetResult());
             return "Изменено " + entries.Count + " строк.\n"; //Результирующая строка
         }
+
+ 
+      
 
         private void Parse(string commandString)
         {
@@ -91,5 +92,7 @@ namespace SQLInterpreter
                 if (i == whereIndex - 1) _command.Add(buf);
             }
         }
+
+
     }
 }
