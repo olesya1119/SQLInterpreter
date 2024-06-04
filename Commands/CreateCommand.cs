@@ -1,4 +1,5 @@
-﻿using SQLInterpreter.Properties.FileCore;
+﻿using SQLInterpreter.FileCore;
+using SQLInterpreter.Properties.FileCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -131,6 +132,13 @@ namespace SQLInterpreter.Commands
             {
                 header.AddField(ParseField(field));
             }
+
+            if (header.HasMemo)
+            {
+                DbtFile emptyDbtFile = new DbtFile(tableName + ".dbt", new DbtHeader());
+                emptyDbtFile.Close();
+            }
+
             if (File.Exists(tableName + ".dbf"))
             {
                 throw new ArgumentException("Таблица с таким именем уже существует");

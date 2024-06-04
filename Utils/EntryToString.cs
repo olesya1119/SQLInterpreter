@@ -81,10 +81,15 @@ namespace SQLInterpreter.Types
                         {
                             data.Add(entres[i].GetByte()[k]);
                         }
-                        numberBlock = Convert.ToUInt32(Encoding.ASCII.GetString(data.ToArray()).Split('\0')[0]);
-
-                        entryList[i].Add(Encoding.ASCII.GetString(dbtFile.GetBlockData(numberBlock)));
-
+                        try
+                        {
+                            numberBlock = Convert.ToUInt32(Encoding.ASCII.GetString(data.ToArray()).Split('\0')[0]);
+                            entryList[i].Add(Encoding.ASCII.GetString(dbtFile.GetBlockData(numberBlock)));
+                        }catch(Exception e)
+                        {
+                            entryList[i].Add("");
+                        }
+                        dbtFile.Close();
                     }
 
                     //Если поле не МЕМО
@@ -129,9 +134,15 @@ namespace SQLInterpreter.Types
                         {
                             data.Add(entres[i].GetByte()[k]);
                         }
-                        numberBlock = Convert.ToUInt32(Encoding.ASCII.GetString(data.ToArray()).Split('\0')[0]);
-
-                        entryList[i].Add(Encoding.ASCII.GetString(dbtFile.GetBlockData(numberBlock)).Split('\0')[0]);
+                        try
+                        {
+                            numberBlock = Convert.ToUInt32(Encoding.ASCII.GetString(data.ToArray()).Split('\0')[0]);
+                            entryList[i].Add(Encoding.ASCII.GetString(dbtFile.GetBlockData(numberBlock)).Split('\0')[0]);
+                        }catch(Exception e)
+                        {
+                            entryList[i].Add("");
+                            //dbtFile.Close();
+                        }
 
                         dbtFile.Close();
                     }

@@ -50,7 +50,7 @@ namespace SQLInterpreter.Properties.FileCore
         {
             if (data.Length > Constants.blockSize) throw new ArgumentException($"Текст не может быть больше {Constants.blockSize} байт");
             _blocks.Add(new DbtBlock(data));
-            _nextFreeBlock++;
+            _nextFreeBlock++; 
         }
 
         /// <summary>

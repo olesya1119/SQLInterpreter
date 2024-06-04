@@ -132,7 +132,7 @@ namespace SQLInterpreter.Properties.FileCore
                  dbtfile = new DbtFile(dbtfilePath, null);
             }
             dbtfile.AddData(Encoding.ASCII.GetBytes(textData));
-            uint blockIndex = dbtfile.Header.NextFreeBlock - 1;
+            uint blockIndex = dbtfile.Header.NextFreeBlock-1;
             dbtfile.Close();
             return blockIndex;
         }
@@ -154,19 +154,24 @@ namespace SQLInterpreter.Properties.FileCore
                 fileInfo = new FileInfo(timedFileName);
                 array = new EntryVirtualArray(_name);
                 timedArray = new EntryVirtualArray(timedFileName, new DbfHeader(array.Header.GetByte()));
-
                 timedArray.Header.Count = 0;
-               
-                timedArray.Header.AddField(field);
-                DbtFile emptyDbtFile = new DbtFile(_name.Split('.')[0] + ".dbt", new DbtHeader());
                 uint nextFreeBlock = 2;
-                emptyDbtFile.Close();
+                timedArray.Header.AddField(field);
+                if (field.Type == 'M')
+                {
+                    DbtFile emptyDbtFile = new DbtFile(_name.Split('.')[0] + ".dbt", new DbtHeader());
+                    nextFreeBlock = emptyDbtFile.Header.NextFreeBlock;
+                    emptyDbtFile.Close();
+                }
 
                 for (int i = 0; i < array.Header.Count; i++)
                 {
                     Entry entry = array[i];
                     Entry newEntry = Entry.ConvertEntry(entry, timedArray.Header);
-                    newEntry.Update(field.Name, Encoding.ASCII.GetBytes(nextFreeBlock.ToString()));
+                    if (field.Type == 'M')
+                    {
+                        newEntry.Update(field.Name, Encoding.ASCII.GetBytes(nextFreeBlock.ToString()));
+                    }
                     timedArray.AppendEntry(newEntry);  
                 }
             }
@@ -206,9 +211,13 @@ namespace SQLInterpreter.Properties.FileCore
                 {
                     Entry entry = array[i];
                     timedArray.AppendEntry(Entry.ConvertEntry(entry, timedArray.Header));
-                }
+                } 
                 timedArray.Close();
                 array.Close();
+                if (!timedArray.Header.HasMemo && array.Header.HasMemo)
+                {
+                    File.Delete(_name.Substring(0, _name.Length - 4) + ".dbt");
+                }
                 File.Delete(_name);
                 fileInfo.MoveTo(_name);
             }
