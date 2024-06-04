@@ -99,6 +99,11 @@ namespace SQLInterpreter.Properties.FileCore
                 throw ex;
             }
         }
+        /// <summary>
+        /// метод добавления данных в memo файл
+        /// </summary>
+        /// <param name="filePath">путь</param>
+        ///   /// <param name="tableName">имя файла</param>
         private uint WriteToMemo(string filePath,string tableName)
         {
             FileInfo fileInfo = new FileInfo(filePath);
@@ -155,15 +160,17 @@ namespace SQLInterpreter.Properties.FileCore
                 array = new EntryVirtualArray(_name);
                 timedArray = new EntryVirtualArray(timedFileName, new DbfHeader(array.Header.GetByte()));
                 timedArray.Header.Count = 0;
-                uint nextFreeBlock = 2;
+                uint nextFreeBlock=0;
+                //timedArray.Header.AddField(field);
                 timedArray.Header.AddField(field);
                 if (field.Type == 'M')
                 {
-                    DbtFile emptyDbtFile = new DbtFile(_name.Split('.')[0] + ".dbt", new DbtHeader());
+                    if (array.Header.HasMemo) throw new ArgumentException("Нельзя добавить второе мемо поле.");
+                    DbtFile emptyDbtFile = new DbtFile(_name.Substring(0,_name.Length-4) + ".dbt", new DbtHeader());
                     nextFreeBlock = emptyDbtFile.Header.NextFreeBlock;
                     emptyDbtFile.Close();
                 }
-
+                
                 for (int i = 0; i < array.Header.Count; i++)
                 {
                     Entry entry = array[i];
@@ -248,6 +255,7 @@ namespace SQLInterpreter.Properties.FileCore
                 array.Close();
                 throw ex;
             }
+            array.Close();
         }
         /// <summary>
         /// обновляет поле таблицы

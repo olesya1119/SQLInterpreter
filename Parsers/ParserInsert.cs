@@ -8,9 +8,18 @@ using System.Threading.Tasks;
 
 namespace SQLInterpreter.Commands
 {
+    /// <summary>
+    /// Класс для добавления новой строки в таблицу
+    /// </summary>
     internal class ParserInsert: IParser
     {
-        
+
+
+        /// <summary>
+        /// Добавяет новую строку в таблицу
+        /// </summary>
+        /// <param name="args">  Парсит строку на отдельные части </param>
+        /// <returns> имя таблицы, имена полей, значения полей </returns>
         private (string, string[], string[]) Parse(string args)
         {
             int startInto = args.IndexOf("INTO ", StringComparison.OrdinalIgnoreCase) + "INTO ".Length;
@@ -43,6 +52,15 @@ namespace SQLInterpreter.Commands
             return (tableName, fieldsArgs, valuesArgs);
 
         }
+
+
+
+        /// <summary>
+        /// Добавяет новую строку в таблицу
+        /// </summary>
+        /// <param name="table">Таблица в которую добавляется строка </param>
+        /// <param name="args"> Строка вида  INTO <имя_таблицы> (<имя_поля1>,<имя_поля2>...) VALUE (<значение1>,<значение2>…)   </param>
+        /// <returns> Результат операции </returns>
         public string GetResult(Table table,string args)
         {
             if (table == null) throw new ArgumentNullException("Нет открытых таблиц");

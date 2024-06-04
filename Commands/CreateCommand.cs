@@ -10,15 +10,13 @@ using System.Threading.Tasks;
 
 namespace SQLInterpreter.Commands
 {
+    /// <summary>
+    ///  Класс для обработки команды CREATE TABLE
+    /// </summary>
     public class CreateCommand
     {
         private EntryVirtualArray table;
         private DbfHeader header;
-
-        private string DeleteSpaces(string str)
-        {
-            return str.Trim();
-        }
 
 
         private (string,string[]) Parse(string sqlCommand)
@@ -50,7 +48,11 @@ namespace SQLInterpreter.Commands
             }
         }
 
-
+        /// <summary>
+        ///  Обабатывает строку с описание поля
+        /// </summary>
+        /// <param name="field">Строка c именем и типом поля </param>
+        /// <returns> Объект поля </returns>
         public static DbfField ParseField(string field)
         {
 
@@ -59,21 +61,13 @@ namespace SQLInterpreter.Commands
             int offset = 0;
             byte size = 0;
             byte accuracy = 0;
-            //var parts = field.Split();
-            //name = parts[0];
-            //parts[1] = parts[1].TrimStart('(');
-            //type = parts[1][0];
-
+            
             name = field.Substring(0,field.IndexOf(' '));
             field = field.Substring(field.IndexOf(' '));
             field = field.Trim();
             type = field[0];
             field = field.Remove(0, 1);
             field = field.Trim();
-
-
-
-
 
             if (!Constants.IsCorrectType(type))
             {
@@ -118,18 +112,25 @@ namespace SQLInterpreter.Commands
             return new DbfField(name, type, offset, size, accuracy);
 
         }
- 
+
+
+        /// <summary>
+        ///  Создает таблицу по заданным параметрам
+        /// </summary>
+        /// <param name="args">Строка c именами полей таблицы и их типами </param>
+        /// <returns> Результат работы команды </returns>
         public string GetResult(string args)
         {
-            
-                var parts = Parse(args);
-                string tableName = parts.Item1;
-                var fields = parts.Item2;
-                header = new DbfHeader();
-            
-           
-            foreach(string field in fields)
+
+            var parts = Parse(args);
+            string tableName = parts.Item1;
+            var fields = parts.Item2;
+            header = new DbfHeader();
+
+
+            foreach (string field in fields)
             {
+                
                 header.AddField(ParseField(field));
             }
 
@@ -149,7 +150,7 @@ namespace SQLInterpreter.Commands
                 table.Close();
                 return "Таблица " + tableName + ".dbf успешно создана.";
             }
-            
+
         }
     }
 }

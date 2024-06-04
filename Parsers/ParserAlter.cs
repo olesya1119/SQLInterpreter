@@ -9,10 +9,19 @@ using System.Threading.Tasks;
 
 namespace SQLInterpreter.Commands
 {
+
+    /// <summary>
+    ///  Класс для парсинга команд типа ALTER
+    /// </summary>
     internal class ParserAlter: IParser
     {
         private string tableName;
 
+        /// <summary>
+        ///  Удаляет столбец из таблицу.
+        /// </summary>
+        /// <param name="args"> Аргументы команды (имя столбца) </param>
+        /// <returns>  </returns>
         private void RemoveColumn(string args)
         {
             args = args.TrimEnd(';');
@@ -26,6 +35,11 @@ namespace SQLInterpreter.Commands
             }
         }
 
+        /// <summary>
+        ///  Добавляет новый столбец в таблицу.
+        /// </summary>
+        /// <param name="args"> Аргументы команды (имя столбца и его тип) </param>
+        /// <returns>  </returns>
         private void AddColumn(string args)
         {
             args = args.TrimEnd(';');
@@ -45,6 +59,12 @@ namespace SQLInterpreter.Commands
 
         }
 
+
+        /// <summary>
+        ///  Переименовывает столбец.
+        /// </summary>
+        /// <param name="args"> Аргументы команды </param>
+        /// <returns>  </returns>
         private void RenameColumn(string args)
         {
             args = args.TrimEnd(';');
@@ -53,34 +73,41 @@ namespace SQLInterpreter.Commands
             string oldName = parts[0];
             string newName = parts[1];
             Table table = new Table(tableName + ".dbf");
-          
-            table.RenameColumn(oldName, newName);
+            try
+            {
+                table.RenameColumn(oldName, newName);
+            }catch(Exception ex)
+            {
+                throw ex;
+            }
         }
 
+
+        /// <summary>
+        ///  Обновляет заголовок столбца с привидением типа.
+        /// </summary>
+        /// <param name="args"> Аргументы команды </param>
+        /// <returns>  </returns>
         private void UpdateColumn(string args)
         {
             Table table = new Table(tableName + ".dbf");
             args = args.TrimEnd(';');
-            DbfField newField = CreateCommand.ParseField(args);
-            table.UpdateColumn(newField);
+            
+                DbfField newField = CreateCommand.ParseField(args);
+                table.UpdateColumn(newField);
+            
             
         }
 
 
 
+        /// <summary>
+        ///  Определяет конкретный тип команды типа ALTER
+        /// </summary>
+        /// <param name="args"> Аргументы команды </param>
+        /// <returns> Результат выполнения команды </returns>
         public string GetResult(Table table, string args)
         {
-
-            //int index = args.IndexOf('E');
-            //args = args.Substring(index + 1);
-            //args = args.TrimStart();
-
-            //index = args.IndexOf(' ');
-
-            ////Разделить строку на две части
-            //tableName = args.Substring(0, index);
-            //args = args.Remove(0, index);
-            //args=args.TrimStart();
 
             if (table == null) throw new ArgumentNullException("Нет открытых таблиц.");
             tableName = table.Name;

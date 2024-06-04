@@ -70,7 +70,7 @@ namespace SQLInterpreter.Properties.FileCore
             int offset = 1;
             foreach (var i in _fields)
             {
-                if (i.Name == field.Name) throw new ArgumentException("Field with this name was exist");
+                if (i.Name == field.Name) throw new ArgumentException("Поле с таким именем уже существует");
                 offset += i.Size;
             }
             if (field.Type == 'M') HasMemo = true;
@@ -96,7 +96,7 @@ namespace SQLInterpreter.Properties.FileCore
                     return;
                 }
             }
-            throw new ArgumentException("field with this name was not found");
+            throw new ArgumentException("Поле с таким именем не найдено");
         }
         /// <summary>
         /// обновляет поле в заголовки
@@ -115,7 +115,7 @@ namespace SQLInterpreter.Properties.FileCore
                     break;
                 }
             }
-            if (!isFound) throw new ArgumentException("field with this name was not found");
+            if (!isFound) throw new ArgumentException("Поле с таким именем не найдено");
             bool hasMemo = false;
             int offset = 1;
             short entrySize = 1;
@@ -150,7 +150,7 @@ namespace SQLInterpreter.Properties.FileCore
                     break;
                 }
             }
-            if (!isFound) throw new ArgumentException("field with this name was not found");
+            if (!isFound) throw new ArgumentException("Поле с таким именем не найдено");
             bool hasMemo = false;
             int offset = 1;
             foreach (var i in _fields)

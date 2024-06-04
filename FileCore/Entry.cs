@@ -95,7 +95,10 @@ namespace SQLInterpreter.Properties.FileCore
             {
                 byte size = (newField.Size < oldField.Size) ? newField.Size : oldField.Size;
                 string data = Encoding.ASCII.GetString(oldData.GetValue(oldField.Name));
-                data = data.Remove(data.IndexOf('.'), oldField.Accuracy+1);
+                if (data.IndexOf('.') != -1)
+                {
+                    data = data.Remove(data.IndexOf('.'), oldField.Accuracy + 1);
+                }
                 data = data.PadRight(size, '\0');
                 Buffer.BlockCopy(Encoding.ASCII.GetBytes(data), 0, newData.GetByte(), newField.Offset, size);
             }

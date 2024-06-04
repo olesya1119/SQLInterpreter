@@ -9,6 +9,12 @@ namespace SQLInterpreter.Commands
 {
     internal class OpenCommand
     {
+
+        /// <summary>
+        ///  Открывает таблицу для последующей работы.
+        /// </summary>
+        /// <param name="tableName">Имя таблицы </param>
+        /// <returns> Открытая таблица </returns>
         public Table Open(string tableName)
         {
             try

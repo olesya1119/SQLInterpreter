@@ -11,6 +11,12 @@ namespace SQLInterpreter.Commands
 {
     internal class DropCommand
     {
+
+        /// <summary>
+        ///  Физически удаляет файлы таблиц
+        /// </summary>
+        /// <param name="args">Имя таблицы </param>
+        /// <returns> Результат работы команды </returns>
         public string GetResult(string args)
         {
             string tableName = args.Remove(0,args.IndexOf("TABLE", StringComparison.OrdinalIgnoreCase)+5);

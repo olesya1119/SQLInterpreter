@@ -22,12 +22,12 @@ namespace SQLInterpreter.Types
 
            if(accuracy == 0)
             {
-                string pattern = @"^[0-9]+$";
+                string pattern = @"^-?[0-9]+$";
                 return Regex.IsMatch(numberString, pattern);
             }
             else if(accuracy > 0)
             {
-                string pattern = @"^[0-9]*\.?[0-9]*$";
+                string pattern = @"^-?[0-9]*\.?[0-9]*$";
                 return Regex.IsMatch(numberString, pattern);
             }
             return false;
