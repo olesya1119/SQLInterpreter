@@ -43,7 +43,7 @@ namespace SQLInterpreter
             return logicEntries;
         }
 
-
+                                                         
         /// <summary>
         /// Преобразование строки - команды до удобного для парсинга вида - строковый спискок
         /// </summary>
@@ -66,8 +66,13 @@ namespace SQLInterpreter
                 }
             }
 
-  
-            if (whereIsFound == false) logicEntries = "True";
+
+
+
+            if (whereIsFound == false) { logicEntries = "True"; }
+            else { logicEntries += s[s.Length - 1]; }
+            logicEntries = logicEntries.Trim();
+            logicEntries = logicEntries.Trim(';') ;
 
             string commandString = logicEntries;
             List<string> command = new List<string> { };

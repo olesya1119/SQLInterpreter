@@ -13,7 +13,6 @@ namespace SQLInterpreter.Commands
     internal class MainParser
     {
         private Table openTable = null; //Открытая таблица
-        private Table _table = null; //Таблица, которую пытается открыть пользователь
         private Dictionary<string, IParser> parsers = new Dictionary<string, IParser>() {
 
             {"alter",    new ParserAlter()}, 
@@ -51,19 +50,11 @@ namespace SQLInterpreter.Commands
             }
             else if (command.Equals("close"))
             {
-                
+
                 if (openTable == null) throw new Exception("Не нашлось открытых таблиц. Используйте команду OPEN для открытия.");
-                try
-                {
-                    _table = openCommand.Open(GetTableName(command, request));
-                }
-                catch
-                {
-                    throw new Exception("Таблица с именем " + GetTableName(command, request) + "не существует. Используйте команду CREATE для создания.");
-                }
-                if (openTable.Name != _table.Name) throw new Exception("Таблица с именем " + _table.Name + "не открыта. Используйте команду OPEN для открытия.");
+                if (openTable.Name != GetTableName(command, request) + ".dbf") throw new Exception("Таблица с именем " + GetTableName(command, request) + ".dbf" + " не открыта. Используйте команду OPEN для открытия.");
                 openTable = null;
-                return "Таблица " + _table.Name + "успешно закрыта.";
+                return "Таблица " + GetTableName(command, request) + ".dbf" + "успешно закрыта.";
             }
             else if (command.Equals("exit"))
             {
@@ -73,15 +64,7 @@ namespace SQLInterpreter.Commands
             else if (parsers.ContainsKey(command))
             {
                 if (openTable == null) throw new Exception("Не нашлось открытых таблиц. Используйте команду OPEN для открытия.");
-                try { 
-                    _table = openCommand.Open(GetTableName(command, request));
-                }
-                catch
-                {
-                    throw new Exception("Таблица с именем " + GetTableName(command, request) + "не существует. Используйте команду CREATE для создания.");
-                }
-                if (openTable.Name != _table.Name) throw new Exception("Таблица с именем " + _table.Name + "не открыта. Используйте команду OPEN для открытия.");
-                _table = null;
+                if (openTable.Name != GetTableName(command, request) + ".dbf") throw new Exception("Таблица с именем " + GetTableName(command, request) + ".dbf" + " не открыта. Используйте команду OPEN для открытия.");
                 return parsers[command].GetResult(openTable, request);
             }
             throw new Exception("Запрос " + command.ToUpper() + " не найден.");
@@ -93,7 +76,7 @@ namespace SQLInterpreter.Commands
             int index;
             
             //Имя таблицы идет сразу после этих ключивых слов
-            if (Array.IndexOf(new string[] { "close", "update", "truncate", "restore" }, command) != -1)
+            if (Array.IndexOf(new string[] { "close", "update", "truncate", "restore", "open" }, command) != -1)
             {
                 tableName = args.Split()[0];
             }

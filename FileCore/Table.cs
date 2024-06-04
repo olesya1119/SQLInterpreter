@@ -333,15 +333,23 @@ namespace SQLInterpreter.Properties.FileCore
         {
             List<Entry> entries = new List<Entry>();
             EntryVirtualArray array = new EntryVirtualArray(_name);
-            for (int i = 0; i < array.Header.Count; i++)
-            {
-                var entry = array[i];
-                if (logicEntries.GetResult(entry))
+            try {
+                for (int i = 0; i < array.Header.Count; i++)
                 {
-                    activity.Do(entry);
-                    entries.Add(entry);
-                    array[i] = entry;
+                    var entry = array[i];
+                    if (logicEntries.GetResult(entry))
+                    {
+                        activity.Do(entry);
+                        entries.Add(entry);
+                        array[i] = entry;
+                    }
                 }
+
+            }
+            catch (Exception ex)
+            {
+                array.Close();
+                throw ex;
             }
             array.Close();
             return entries;

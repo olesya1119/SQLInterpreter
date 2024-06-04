@@ -112,7 +112,7 @@ namespace SQLInterpreter
                     {
                         for (int j = 0; j < command[i - 1].Length; j++)
                         {
-                            if ("0123456789.".Contains(command[i - 1][j]) == false)
+                            if ("-0123456789.".Contains(command[i - 1][j]) == false)
                                 if (!(command[i - 1].Length == 1 && "FfTt?".Contains(command[i - 1][0]))) //И при этом это не булевая переменная
                                 {
                                     throw new Exception("Синтаксическая ошибка"); 

@@ -38,9 +38,10 @@ namespace SQLInterpreter.Select
         public string GetResult(Table table, string args)
         {
             _table = table;
-            ParserWhere parserWhere = new ParserWhere(table, _logicalExpression);
+            ParserWhere parserWhere = new ParserWhere(table, args);
             LogicEntries logicEntries = parserWhere.GetResult();
             List<Entry> entries = table.RunForArray(_activity, logicEntries);
+          
             Parse(args);
 
             List<List<string>> selectedEntries = Select(entries, _fieldsNameForReturn);
