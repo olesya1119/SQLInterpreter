@@ -59,7 +59,6 @@
     <Compile Include="FileCore\DbfField.cs" />
     <Compile Include="FileCore\DbtFile.cs" />
     <Compile Include="FileCore\DbfHeader.cs" />
-    <Compile Include="FileCore\DbtBlock.cs" />
     <Compile Include="FileCore\DbtHeader.cs" />
     <Compile Include="FileCore\Entry.cs" />
     <Compile Include="FileCore\EntryVirtualArray.cs" />

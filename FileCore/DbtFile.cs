@@ -18,21 +18,13 @@ namespace SQLInterpreter.FileCore
         public DbtHeader Header { get => _header; }
 
         /// <summary>
-        /// Конструктор для открытия существуещего файла
+        /// Конструктор для открытия существуещего файла или создания нового файла (если он ещё не был создан)
         /// </summary>
         /// <param name="path">Путь к файлу</param>
         public DbtFile(string path)
         {
-            Open(path);
-        }
-        /// <summary>
-        /// Для создания файла по уже существуещему заголовку, при header = null создаться файл с заголовком без других блоков текста
-        /// </summary>
-        /// <param name="path">Путь до файла</param>
-        /// <param name="header">Заголовок файла, при header = null создаться файл с заголовком без других блоков текста</param>
-        public DbtFile(string path, DbtHeader header)
-        {
-            Create(path, header);
+            if (File.Exists(path)) Open(path); // Если файл есть, то открываем его
+            else Create(path); // Иначе создаём
         }
 
         /// <summary>
@@ -43,96 +35,104 @@ namespace SQLInterpreter.FileCore
         {
             _stream = new FileStream(path, FileMode.Open);
             FileInfo fileInfo = new FileInfo(path);
-            if (fileInfo.Extension != ".dbt") throw new ArgumentException("Wrong file extension");
-            _header = ReadFile(); // Копируем информацию из файла в _header
-        }
-
-        /// <summary>
-        /// Читает всю информацию из .dbt файла
-        /// </summary>
-        /// <returns></returns>
-        DbtHeader ReadFile()
-        {
-            _stream.Seek(0, SeekOrigin.Begin);
-            byte[] buf = new byte[Constants.headerSize];
-            _stream.Read(buf, 0, Constants.headerSize);
-            uint nextFreeBlock = BitConverter.ToUInt32(buf, 0);
-            _stream.Seek(Constants.blockSize, SeekOrigin.Begin);
-            byte[] data = new byte[(nextFreeBlock - 1) * Constants.blockSize];
-            _stream.Read(data, 0, data.Length);
-            return new DbtHeader(data);
+            if (fileInfo.Extension != ".dbt") throw new ArgumentException("Неверный формат файла");
+            _header = ReadHeader(); // Копируем заголовок из файла в _header
         }
 
         /// <summary>
         /// Cоздает файл по указанному пути
         /// </summary>
         /// <param name="path">Путь к файлу</param>
-        /// <param name="header">Заголовок файла, при header = null создаться файл с заголовком без других блоков текста</param>
-        /// <exception cref="ArgumentException">Неправильный формат файла</exception>
-        private void Create(string path, DbtHeader header = null)
+        private void Create(string path)
         {
             FileInfo fileInfo = new FileInfo(path);
-            if (fileInfo.Extension != ".dbt") throw new ArgumentException("Wrong file extension");
-            if (header == null) _header = new DbtHeader();
-            else _header = new DbtHeader(header.GetByte());
+            if (fileInfo.Extension != ".dbt") throw new ArgumentException("Неверный формат файла");
+            _header = new DbtHeader();
             _stream = new FileStream(path, FileMode.Create);
-            RewriteFile(_header);
+            RewriteFile();
         }
 
         /// <summary>
-        /// Полностью перезаписывает весь файл с учётом нового DbtHeader
+        /// Читает информацию из заголовка .dbt файла
         /// </summary>
-        /// <param name="header">Заголовок файла</param>
-        public void RewriteFile(DbtHeader header)
+        /// <returns></returns>
+        DbtHeader ReadHeader()
         {
             _stream.Seek(0, SeekOrigin.Begin);
-            byte[] buf = new byte[Constants.blockSize];
-            Buffer.BlockCopy(BitConverter.GetBytes(header.NextFreeBlock), 0, buf, 0, 3);
-            _stream.Write(buf, 0, Constants.blockSize);
-            _stream.Seek(Constants.blockSize, SeekOrigin.Begin);
-            var head = header.GetByte();
-            _stream.Write(head, 0, head.Length);
+            byte[] buf = new byte[Constants.headerSize];
+            _stream.Read(buf, 0, Constants.headerSize);
+            uint nextFreeBlock = BitConverter.ToUInt32(buf, 0);
+            return new DbtHeader(nextFreeBlock);
         }
 
         /// <summary>
-        /// Изменяет блок .dbt файла по номеру
+        /// Полностью перезаписывает весь файл с учётом новых данных
         /// </summary>
-        /// <param name="data">Текст, который вы хотите записать в этот блок</param>
-        /// <param name="number">Номер нужного блока (нумерация начинается с 1)</param>
-        public void UpdateBlock(byte[] data, uint number) => _header.UpdateBlock(data, number);
+        /// <param name="header">Заголовок файла</param>
+        /// <param name="data">Текст для записи в файл</param>
+        private void RewriteFile(byte[] data = null)
+        {
+            if (data != null)
+            {
+                RewriteHeader(data);
+                int lastLen = data.Length % Constants.blockSize, len = data.Length / Constants.blockSize + ((lastLen > 0) ? 1 : 0);
+                _stream.Seek(Constants.blockSize, SeekOrigin.Begin);
+                for (int i = 0; i < len; i++) // Запись по блокам в файл
+                {
+                    var buf = new byte[Constants.blockSize];
+                    Buffer.BlockCopy(data, i * Constants.blockSize, buf, 0, Constants.blockSize);
+                    _stream.Write(buf, 0, Constants.blockSize);
+                }
+            }
+            else RewriteHeader();
+        }
 
         /// <summary>
-        /// Добавляет в конец файла новую информацию
+        /// Меняет заголовок файла. Если подать ещё data, то поменяет заголовок с учетом новой информации
+        /// </summary>
+        /// <param name="data">Новая информация</param>
+        private void RewriteHeader(byte[] data = null)
+        {
+            if (data != null) _header.ChangeHeader(data);
+            _stream.Seek(0, SeekOrigin.Begin);
+            byte[] header = new byte[Constants.blockSize], head = Encoding.ASCII.GetBytes(_header.NextFreeBlock.ToString());
+            Buffer.BlockCopy(head, 0, header, 0, head.Length);
+            _stream.Write(header, 0, Constants.blockSize);
+        }
+
+        /// <summary>
+        /// Добавляет в конец файла новый блок информации
         /// </summary>
         /// <param name="data">Текст, который вы хотите записать в конец файла</param>
-        /// <exception cref="ArgumentException"></exception>
         public void AddData(byte[] data)
         {
             if (data.Length > Constants.blockSize) throw new ArgumentException($"Текст не может быть больше {Constants.blockSize} байт");
-            _header.AddData(data);
-        }
-
-        /// <summary>
-        /// Удаляет блок по номеру
-        /// </summary>
-        /// <param name="number">Номер нужного блока (нумерация начинается с 1)</param>
-        public void RemoveBlock(uint number) => _header.RemoveBlock(number);
-        
+            var buf = new byte[Constants.blockSize];
+            Buffer.BlockCopy(data, 0, buf, 0, Constants.blockSize);
+            _stream.Seek((_header.NextFreeBlock - 1) * Constants.blockSize, SeekOrigin.Begin);
+            _stream.Write(buf, 0, Constants.blockSize);
+        }    
 
         /// <summary>
         /// Возвращает текст блока по номеру (нумерация с 1)
         /// </summary>
         /// <param name="number"></param>
         /// <returns>Текст данного блока</returns>
-        public byte[] GetBlockData(uint number) => _header.GetBlockData(number);
+        public byte[] GetBlockData(uint number)
+        {
+            if (number == 1) throw new ArgumentException("Нельзя получить текст с заголовока .dbt файла с помощью этого метода");
+            if (number >= _header.NextFreeBlock) throw new ArgumentOutOfRangeException("Блока с таким номером не существует");
+            _stream.Seek((number - 1) * Constants.blockSize, SeekOrigin.Begin);
+            var buf = new byte[Constants.blockSize];
+            _stream.Read(buf, 0, Constants.blockSize);
+            return buf;
+        }
         
-
         /// <summary>
-        /// Закрывает поток, сохраняя данные в файл
+        /// Закрывает поток
         /// </summary>
         public void Close()
         {
-            RewriteFile(_header);
             _stream.Close();
         }
     }
