@@ -33,7 +33,7 @@ namespace SQLInterpreter.FileCore
         /// <param name="path">Путь до файла</param>
         void Open(string path)
         {
-            _stream = new FileStream(path, FileMode.Open);
+            _stream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite);
             FileInfo fileInfo = new FileInfo(path);
             if (fileInfo.Extension != ".dbt") throw new ArgumentException("Неверный формат файла");
             _header = ReadHeader(); // Копируем заголовок из файла в _header
@@ -48,7 +48,7 @@ namespace SQLInterpreter.FileCore
             FileInfo fileInfo = new FileInfo(path);
             if (fileInfo.Extension != ".dbt") throw new ArgumentException("Неверный формат файла");
             _header = new DbtHeader();
-            _stream = new FileStream(path, FileMode.Create);
+            _stream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite);
             RewriteFile();
         }
 
@@ -61,7 +61,7 @@ namespace SQLInterpreter.FileCore
             _stream.Seek(0, SeekOrigin.Begin);
             byte[] buf = new byte[Constants.headerSize];
             _stream.Read(buf, 0, Constants.headerSize);
-            uint nextFreeBlock = BitConverter.ToUInt32(buf, 0);
+            uint nextFreeBlock = Convert.ToUInt32(Encoding.ASCII.GetString(buf));
             return new DbtHeader(nextFreeBlock);
         }
 
@@ -108,9 +108,10 @@ namespace SQLInterpreter.FileCore
         {
             if (data.Length > Constants.blockSize) throw new ArgumentException($"Текст не может быть больше {Constants.blockSize} байт");
             var buf = new byte[Constants.blockSize];
-            Buffer.BlockCopy(data, 0, buf, 0, Constants.blockSize);
+            Buffer.BlockCopy(data, 0, buf, 0, data.Length);
             _stream.Seek((_header.NextFreeBlock - 1) * Constants.blockSize, SeekOrigin.Begin);
             _stream.Write(buf, 0, Constants.blockSize);
+            RewriteHeader(data);
         }    
 
         /// <summary>
