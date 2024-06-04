@@ -134,7 +134,7 @@ namespace SQLInterpreter.Properties.FileCore
                 dbtfile = new DbtFile(dbtfilePath);            
             }
             else {
-                 dbtfile = new DbtFile(dbtfilePath, null);
+                 dbtfile = new DbtFile(dbtfilePath);
             }
             dbtfile.AddData(Encoding.ASCII.GetBytes(textData));
             uint blockIndex = dbtfile.Header.NextFreeBlock-1;
@@ -166,7 +166,7 @@ namespace SQLInterpreter.Properties.FileCore
                 if (field.Type == 'M')
                 {
                     if (array.Header.HasMemo) throw new ArgumentException("Нельзя добавить второе мемо поле.");
-                    DbtFile emptyDbtFile = new DbtFile(_name.Substring(0,_name.Length-4) + ".dbt", new DbtHeader());
+                    DbtFile emptyDbtFile = new DbtFile(_name.Substring(0,_name.Length-4) + ".dbt");
                     nextFreeBlock = emptyDbtFile.Header.NextFreeBlock;
                     emptyDbtFile.Close();
                 }
