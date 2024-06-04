@@ -61,6 +61,7 @@ namespace SQLInterpreter.FileCore
             _stream.Seek(0, SeekOrigin.Begin);
             byte[] buf = new byte[Constants.headerSize];
             _stream.Read(buf, 0, Constants.headerSize);
+            if (buf[0] == 0x0) throw new ArgumentException($"Имя заголовка файла {_stream.Name} записано неверно или вовсе не существует");
             uint nextFreeBlock = Convert.ToUInt32(Encoding.ASCII.GetString(buf));
             return new DbtHeader(nextFreeBlock);
         }
