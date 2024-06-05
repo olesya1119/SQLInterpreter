@@ -10,7 +10,7 @@ namespace SQLInterpreter
 {
     public class ParserRestore : IParser
     {
-        private IActivity _activity;
+        private ActivityRestore _activity;
 
         /// <summary>
         /// Создание экземпляра класса 
@@ -28,10 +28,11 @@ namespace SQLInterpreter
         /// <returns></returns>
         public string GetResult(Table table, string args)
         {
+            _activity = new ActivityRestore();
             ParserWhere parserWhere = new ParserWhere(table, args);
             LogicEntries logicEntries = parserWhere.GetResult();
-
-            return "Изменено " + table.RunForArray(_activity, logicEntries).Count.ToString() + "строк."; //Результирующая строка
+            table.RunForArray(_activity, logicEntries);
+            return "Изменено " + _activity.Counter + " строк."; //Результирующая строка
         }
     }
 }

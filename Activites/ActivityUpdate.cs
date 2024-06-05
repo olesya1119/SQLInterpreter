@@ -28,14 +28,17 @@ namespace SQLInterpreter
                     }
                     else
                     {
-                        throw new ArgumentException($"Несоответствие значения типу поля. {field.Name} имеет размер или точность меньше чем {_command[i + 1]}");
+                        _command.Clear();
+                        throw new ArgumentException($"Несоответствие значения типу поля. {field.Name} имеет размер или точность меньше.");
                     }
                 }
                 else
                 {
-                    throw new ArgumentException($"Несоответствие значения типу поля. {field.Name} типа {field.Type} не может иметь значение {_command[i + 1]}.");
+                    _command.Clear();
+                    throw new ArgumentException($"Несоответствие значения типу поля. {field.Name} типа {field.Type} не может иметь такое значение.");
                 }
             }
+            //_command.Clear();
         }
 
         private bool CheckSize(string value, byte size, byte accuracy, char type)

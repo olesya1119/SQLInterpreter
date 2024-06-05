@@ -94,7 +94,7 @@ namespace SQLInterpreter.Select
         /// <exception cref="Exception"></exception>
         private List<List<string>> Select(List<Entry> entries, List<string> fieldsName)
         {
-            if (entries.Count == 0) return new List<List<string>> { };
+            if (entries.Count == 0) return new List<List<string>> { new List<string> { "Таблица пустая." } };
             List<DbfField> fields = entries[0].Header.Fields; //Список полей
             List<int> indexs = new List<int>() { };
             int index;

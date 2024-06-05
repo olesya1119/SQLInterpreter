@@ -36,6 +36,7 @@ namespace SQLInterpreter
                 catch (Exception e)
                 {
                     Console.WriteLine("SQL>>" + e.Message);
+                    //Console.WriteLine(e.StackTrace);
                 }
 
             }

@@ -10,7 +10,7 @@ namespace SQLInterpreter
 {
     public class ParserDelete : IParser
     {
-        private IActivity _activity;
+        private ActivityDelete _activity;
 
         public ParserDelete()
         { 
@@ -19,11 +19,11 @@ namespace SQLInterpreter
 
         public string GetResult(Table table, string args)
         {
- 
+            _activity = new ActivityDelete();
             ParserWhere parserWhere = new ParserWhere(table, args);
-            List<Entry> entries = table.RunForArray(_activity, parserWhere.GetResult());
+            table.RunForArray(_activity, parserWhere.GetResult());
 
-            return "Изменено " + entries.Count + " строк."; //Результирующая строка
+            return "Изменено " +_activity.Counter + " строк."; //Результирующая строка
         }
     }
 }

@@ -9,9 +9,14 @@ namespace SQLInterpreter
 {
     internal class ActivityRestore : IActivity
     {
+        public int Counter { get; set; }
         public void Do(Entry entry)
         {
-            entry.IsDeleted = false;
+            if (entry.IsDeleted)
+            {
+                entry.IsDeleted = false;
+                Counter++;
+            }
         }
     }
 }

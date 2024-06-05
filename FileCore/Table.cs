@@ -319,7 +319,7 @@ namespace SQLInterpreter.Properties.FileCore
                     }
                     if (endIndex <= i)
                     {
-                        array.WriteEnd(i);
+                        //array.WriteEnd(i+1);
                         array.Header.Count--;
                         break;
                     }

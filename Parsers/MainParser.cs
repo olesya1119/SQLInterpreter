@@ -54,11 +54,10 @@ namespace SQLInterpreter.Commands
                 if (openTable == null) throw new Exception("Не нашлось открытых таблиц. Используйте команду OPEN для открытия.");
                 if (openTable.Name != GetTableName(command, request) + ".dbf") throw new Exception("Таблица с именем " + GetTableName(command, request) + ".dbf" + " не открыта. Используйте команду OPEN для открытия.");
                 openTable = null;
-                return "Таблица " + GetTableName(command, request) + ".dbf" + "успешно закрыта.";
+                return "Таблица " + GetTableName(command, request) + ".dbf" + " успешно закрыта.";
             }
-            else if (command.Equals("exit"))
+            else if (command.Equals("exit;"))
             {
-                Console.WriteLine("SQL>>Работа интерперетатора SQL завершена.");
                 Environment.Exit(0);
             }
             else if (parsers.ContainsKey(command))
@@ -79,6 +78,7 @@ namespace SQLInterpreter.Commands
             if (Array.IndexOf(new string[] { "close", "update", "truncate", "restore", "open" }, command) != -1)
             {
                 tableName = args.Split()[0];
+                tableName = tableName.TrimEnd(';');
             }
             //Перед таблицей стоит какое-то ключевое слово - Table
             else if (Array.IndexOf(new string[] { "alter"}, command) != -1 )

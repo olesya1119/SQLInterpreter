@@ -84,7 +84,7 @@ namespace SQLInterpreter.Commands
             }
             catch(Exception ex)
             {
-                throw new ArgumentException("Несоответствие значения типу поля");
+                throw ex;
             }
            
            

@@ -99,8 +99,10 @@ namespace SQLInterpreter.Types
                         {
                             data.Add(entres[i].GetByte()[k]);
                         }
+                        
                         entryList[i].Add(Encoding.ASCII.GetString(data.ToArray()).Split('\0')[0]);      
                     }
+                    if (entres[i].IsDeleted && j == 0) { entryList[i][0] = "*" + entryList[i][0]; }
                     data.Clear();
                 }
 
@@ -156,7 +158,9 @@ namespace SQLInterpreter.Types
                             data.Add(entres[i].GetByte()[k]);
                         }
                         entryList[i].Add(Encoding.ASCII.GetString(data.ToArray()).Split('\0')[0]);
+
                     }
+                    if (entres[i].IsDeleted && j == 0) { entryList[i][0] = "*" + entryList[i][0]; }
                     data.Clear();
                 }
 
