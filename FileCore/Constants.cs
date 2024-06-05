@@ -30,7 +30,8 @@ namespace SQLInterpreter.Properties.FileCore
             switch (type)
             {
                 case 'C':
-                    if (value.StartsWith("\"") && value.EndsWith("\"")) return true;
+                    //if (value.StartsWith("\"") && value.EndsWith("\"")) 
+                    return true;
                     break;
                 case 'D':
                     Date d = new Date(value);

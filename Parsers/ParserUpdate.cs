@@ -88,7 +88,7 @@ namespace SQLInterpreter
                         if (commandString[i] != ' ') buf += commandString[i];
                     }
                 }
-                if (i == whereIndex - 1) _command.Add(buf);
+                if (i == whereIndex - 1 && !nowIsArgument) _command.Add(buf);
             }
         }
 
