@@ -28,7 +28,7 @@ namespace SQLInterpreter
                     }
                     else
                     {
-                        throw new ArgumentException($"Несоответствие значения типу поля. {field.Name} имеет размер меньше чем {_command[i + 1]}");
+                        throw new ArgumentException($"Несоответствие значения типу поля. {field.Name} имеет размер или точность меньше чем {_command[i + 1]}");
                     }
                 }
                 else
@@ -40,7 +40,7 @@ namespace SQLInterpreter
 
         private bool CheckSize(string value, byte size, byte accuracy, char type)
         {
-            if (value.Length > size || (type == 'N' && (value.IndexOf('.') != -1 && value.Length - value.IndexOf('.') > accuracy))) return false;
+            if ((type != 'N' && value.Length > size) || (type == 'N' && (value.IndexOf('.') != -1 && value.Length - value.IndexOf('.') - 1 > accuracy))) return false;
             return true;
         }
     }
