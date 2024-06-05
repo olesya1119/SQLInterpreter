@@ -164,13 +164,46 @@ namespace SQLInterpreter.Select
         private string GetResultString(List<List<string>> table)
         {
             if (table.Count == 0) return "";
-            string result = "\n";
-
+            string result = "\n"; 
+            string[] memWithn;
+            
             // Ширина каждой колонки таблицы
             int[] columnWidths = new int[table[0].Count];
 
             //Высота строк
             int[] rowHeight = new int[table.Count];
+            
+            //Если строка меньше 15 и имеет перенос мы заполним остаток пробелами
+            for (int i = 0; i < table.Count; i++)
+            {
+                for (int j = 0; j < table[i].Count; j++)
+                {
+                    table[i][j] = table[i][j].Replace("\r", "");
+                    if (table[i][j].Length > 15 && table[i][j].IndexOf('\n') != -1)
+                    {
+                        memWithn = table[i][j].Split('\n');
+                        table[i][j] = "";
+                        for (int k = 0; k < memWithn.Length; k++)
+                        {
+                            string append;
+                            if (memWithn[k].Length > 15)
+                            {
+                                int index = 0;
+                                for (; index < memWithn[k].Length-15; index+=15)
+                                {
+                                    table[i][j] += memWithn[k].Substring(index, 15);
+                                }
+                                append = memWithn[k].Substring(index);
+                            }
+                            else
+                            {
+                                append = memWithn[k];
+                            }
+                            table[i][j] += append + new string(' ', 15 - append.Length);
+                        }
+                    }
+                }
+            }
 
             // Вычисление максимальной ширины для каждой колонки
             for (int i = 0; i < table[0].Count; i++)
@@ -187,7 +220,7 @@ namespace SQLInterpreter.Select
                     }
                 }
             }
-
+            
             //Вычисление высоты каждой строки
             for (int i = 0; i < table.Count; i++)
             {
@@ -196,12 +229,12 @@ namespace SQLInterpreter.Select
                     if (table[i][j].Length > 15)
                     {
                         //Добавим в строку переносы строк
-                        for (int k = 15; k < table[i][j].Length; k += 15)
+                        for (int k = 15; k < table[i][j].Length; k += 16)
                         {
                             table[i][j] = table[i][j].Insert(k, "\n");
                         }
                     }
-                    rowHeight[i] = Math.Max(table[i][j].Length / 15 + 1, rowHeight[i]);
+                    rowHeight[i] = Math.Max(table[i][j].Length / 16 + 1, rowHeight[i]);
                 }
             }
 
@@ -216,7 +249,8 @@ namespace SQLInterpreter.Select
                 {
                     for (int k = 0; k < columnWidths.Length; k++) //Перебираем столбы
                     {
-                        cell = table[i][k].Split(new char[] { '\n', '\r' }).ToList();
+                        table[i][k] = table[i][k].Trim('\n');
+                        cell = table[i][k].Split(new char[] { '\n'}).ToList();
                         while (cell.Count < rowHeight[i]) cell.Add("");
 
                         result += "|" + cell[j] + new string(' ', columnWidths[k] - cell[j].Length + 2);
