@@ -128,14 +128,14 @@ namespace SQLInterpreter.Properties.FileCore
                 
             }
 
-            DbtFile dbtfile=null;
-            string dbtfilePath = tableName.Split('.')[0] + ".dbt";
-            if (File.Exists(dbtfilePath)){
-                dbtfile = new DbtFile(dbtfilePath);            
-            }
-            else {
-                 dbtfile = new DbtFile(dbtfilePath);
-            }
+           
+            string dbtfilePath = tableName.Substring(0, tableName.Length - 4) + ".dbt";
+            //if (File.Exists(dbtfilePath)){
+            DbtFile dbtfile = new DbtFile(dbtfilePath);            
+           //}
+           // else {
+                // dbtfile = new DbtFile(dbtfilePath);
+           // }
             dbtfile.AddData(Encoding.ASCII.GetBytes(textData));
             uint blockIndex = dbtfile.Header.NextFreeBlock-1;
             dbtfile.Close();
@@ -167,7 +167,7 @@ namespace SQLInterpreter.Properties.FileCore
                 {
                     if (array.Header.HasMemo) throw new ArgumentException("Нельзя добавить второе мемо поле.");
                     DbtFile emptyDbtFile = new DbtFile(_name.Substring(0,_name.Length-4) + ".dbt");
-                    nextFreeBlock = emptyDbtFile.Header.NextFreeBlock;
+                    //nextFreeBlock = emptyDbtFile.Header.NextFreeBlock;
                     emptyDbtFile.Close();
                 }
                 
@@ -177,7 +177,7 @@ namespace SQLInterpreter.Properties.FileCore
                     Entry newEntry = Entry.ConvertEntry(entry, timedArray.Header);
                     if (field.Type == 'M')
                     {
-                        newEntry.Update(field.Name, Encoding.ASCII.GetBytes(nextFreeBlock.ToString()));
+                        newEntry.Update(field.Name, Encoding.ASCII.GetBytes("0"));
                     }
                     timedArray.AppendEntry(newEntry);  
                 }

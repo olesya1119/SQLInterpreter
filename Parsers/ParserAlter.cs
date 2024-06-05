@@ -26,7 +26,7 @@ namespace SQLInterpreter.Commands
         {
             args = args.TrimEnd(';');
             args = args.Trim();
-            Table table = new Table(tableName + ".dbf");
+            Table table = new Table(tableName);
             try { 
             table.RemoveColumn(args);
             }
@@ -47,7 +47,7 @@ namespace SQLInterpreter.Commands
             
             //args = args.Remove(args.Length-1,1);
             DbfField newField = CreateCommand.ParseField(args);
-            Table table = new Table(tableName + ".dbf");
+            Table table = new Table(tableName);
             try
             {
                 table.AddColumn(newField);
@@ -72,7 +72,7 @@ namespace SQLInterpreter.Commands
             var parts  = args.Split();
             string oldName = parts[0];
             string newName = parts[1];
-            Table table = new Table(tableName + ".dbf");
+            Table table = new Table(tableName);
             try
             {
                 table.RenameColumn(oldName, newName);
@@ -90,7 +90,7 @@ namespace SQLInterpreter.Commands
         /// <returns>  </returns>
         private void UpdateColumn(string args)
         {
-            Table table = new Table(tableName + ".dbf");
+            Table table = new Table(tableName);
             args = args.TrimEnd(';');
             
                 DbfField newField = CreateCommand.ParseField(args);
@@ -111,7 +111,7 @@ namespace SQLInterpreter.Commands
 
             if (table == null) throw new ArgumentNullException("Нет открытых таблиц.");
             tableName = table.Name;
-            tableName = tableName.Split('.')[0];
+           
             
 
             //удаляем слово COLUMN
