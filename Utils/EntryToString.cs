@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace SQLInterpreter.Types
 {
@@ -75,7 +76,7 @@ namespace SQLInterpreter.Types
                     //Если поле является MEMO
                     if (fields[indexs[j]].Type == 'M')
                     {
-                        dbtFile = new DbtFile(tableName.Split('.')[0] + ".dbt");
+                        dbtFile = new DbtFile(tableName.Substring(0, tableName.Length - 4) + ".dbt");
                         //Считываем номер блока
                         for (int k = fields[indexs[j]].Offset; k < fields[indexs[j]].Offset + fields[indexs[j]].Size; k++)
                         {
@@ -128,7 +129,7 @@ namespace SQLInterpreter.Types
                     //Если поле является MEMO
                     if (fields[j].Type == 'M')
                     {
-                        dbtFile = new DbtFile(tableName.Split('.')[0] + ".dbt"); 
+                        dbtFile = new DbtFile(tableName.Substring(0, tableName.Length - 4) + ".dbt"); 
                         //Считываем номер блока
                         for (int k = fields[j].Offset; k < fields[j].Offset + fields[j].Size; k++)
                         {

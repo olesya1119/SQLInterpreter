@@ -136,7 +136,7 @@ namespace SQLInterpreter.Commands
 
             if (header.HasMemo)
             {
-                DbtFile emptyDbtFile = new DbtFile(tableName + ".dbt", new DbtHeader());
+                DbtFile emptyDbtFile = new DbtFile(tableName + ".dbt");
                 emptyDbtFile.Close();
             }
 
